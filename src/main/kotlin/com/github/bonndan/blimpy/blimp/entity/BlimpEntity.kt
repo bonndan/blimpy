@@ -7,7 +7,6 @@ import com.github.bonndan.blimpy.blimp.entity.engine.FueledEngine
 import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
-import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
@@ -16,6 +15,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Inventory
@@ -40,6 +40,7 @@ private const val MAX_HEIGHT = 300
  */
 class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropItem: Supplier<Item>) :
     AbstractBoat(entityType, level, dropItem) {
+
 
     private val saveStateCallback = object : SaveStateCallback {
         override fun saveState(engineState: Boolean, remainingBurnTime: Int) {
@@ -109,6 +110,10 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
      * hack: paddle sounds apper only if in water or on land
      */
     private fun isInWaterOrOnLand(): Boolean = this.paddleSound != null
+
+    override fun getPassengerAttachmentPoint(entity: Entity, dimensions: EntityDimensions, partialTick: Float): Vec3 {
+        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick).add(PASSENGER_OFFSET)
+    }
 
     fun setEngineOn(state: Boolean) {
         this.engine.setEngineOn(state)
@@ -262,5 +267,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         private val REMAINING_BURN_TIME: EntityDataAccessor<Int> = SynchedEntityData.defineId(
             BlimpEntity::class.java, EntityDataSerializers.INT
         )
+
+        private val PASSENGER_OFFSET = Vec3(0.0, -0.2, 0.0)
     }
 }

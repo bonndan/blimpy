@@ -11,6 +11,7 @@ import net.minecraft.client.model.geom.builders.MeshDefinition
 import net.minecraft.resources.ResourceLocation
 import java.util.function.Function
 
+@Deprecated("coloring model for minecart")
 class TrimCarModel(root: ModelPart) : EntityModel<BlimpRenderState>(root.getChild("bb_main")) {
 
     companion object {

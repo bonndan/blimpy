@@ -12,9 +12,9 @@ data class BlimpRendererConfig(
     /**
      * The model to render, i.e. a descendant of MinecartModel
      */
-    val modelLayer: ModelLayerLocation = BlimpModel.LAYER_LOCATION,
+    val modelLayer: ModelLayerLocation = BlimpSteamTugModel.LAYER_LOCATION,
     val modelTextureLocation: ResourceLocation = ResourceLocation.withDefaultNamespace("textures/entity/minecart.png"),
-    val modelSupplier: Function<ModelPart, BlimpModel> = Function { part: ModelPart -> BlimpModel(part) },
+    val modelSupplier: Function<ModelPart, BlimpSteamTugModel> = Function { part: ModelPart -> BlimpSteamTugModel(part) },
 
     /**
      * y-axis offset for blocks inserted into the mine cart. The default suits most blocks.
@@ -43,7 +43,7 @@ data class BlimpRendererConfig(
     val additionalModelYRotation: Float = 0f,
 ) {
 
-    fun getModel(context: EntityRendererProvider.Context): BlimpModel {
+    fun getModel(context: EntityRendererProvider.Context): BlimpSteamTugModel {
         return modelSupplier.apply(context.bakeLayer(modelLayer))
     }
 

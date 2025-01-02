@@ -1,0 +1,23 @@
+{
+    "steam_tug_whistle": {
+        "subtitle": "subtitle.blimpy.steam_tug_whistle",
+        "sounds": [
+            "blimpy:steam_tug/tug_whistle1",
+            "blimpy:steam_tug/tug_whistle2",
+            "blimpy:steam_tug/tug_whistle3",
+            "blimpy:steam_tug/tug_whistle4"
+        ]
+    },
+    "tug_docking": {
+        "subtitle": "subtitle.blimpy.tug_docking",
+        "sounds": [
+            "blimpy:dock/docking"
+        ]
+    },
+    "tug_undocking": {
+        "subtitle": "subtitle.blimpy.tug_undocking",
+        "sounds": [
+            "blimpy:dock/docking"
+        ]
+    }
+}

@@ -58,6 +58,6 @@ class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
 
     companion object {
         private val GUI: ResourceLocation =
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/container/steam_locomotive.png")
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/container/blimp_container.png")
     }
 }
