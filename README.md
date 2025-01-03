@@ -2,8 +2,20 @@
 
 ![logo](./logo.png)
 
-This was a NeoForge port of [LittleLogistics](https://littlelogistics.murad.dev/) but now it only features blimps.
+This was a NeoForge port of [LittleLogistics](https://littlelogistics.murad.dev/) but now it only features blimps. The models are made by [pega](https://www.fiverr.com/s/38y2BGL) are published under the same license as the source code.
 
+## How To?
+
+Assemble boats, paper, a chest and a furnace.
+
+![recipe](./blimp_recipe.png)
+
+## TODO
+
+* fix blimp item icon
+* replace model with final one
+* fix sounds
+* fix screen
 
 ## License
 
@@ -14,7 +26,6 @@ https://www.gnu.org/licenses/lgpl-3.0.en.html
 
 All assets are used with permission from the original authors of the Little Logistics project. 
 
-New models made by [pega](https://www.fiverr.com/s/38y2BGL) are published under the same license as the source code.  
 
 ## Development
 
