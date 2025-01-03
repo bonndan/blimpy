@@ -57,14 +57,13 @@ class BlimpModel(root: ModelPart) : EntityModel<BlimpRenderState>(root.getChild(
                 CubeListBuilder.create().texOffs(0, -1)
                     .addBox(-1.3024f, -3.0f, 4.2522f, 13.0f, 6.0f, 14.0f, CubeDeformation(0.0f))
                     .texOffs(0, 59).addBox(4.9416f, 2.4224f, 5.2522f, 7.0f, 1.0f, 13.0f, CubeDeformation(0.0f))
-                    .texOffs(115, 73).addBox(-0.1024f, -3.9f, 3.3522f, 10.0f, 0.0f, 2.0f, CubeDeformation(0.0f))
                     .texOffs(104, 97).addBox(-0.1024f, -5.9f, 17.8522f, 10.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
-                    .texOffs(116, 73).addBox(0.8976f, -2.9f, 1.3522f, 8.0f, 0.0f, 2.0f, CubeDeformation(0.0f))
+                    .texOffs(115, 72).addBox(0.8976f, -2.9f, 1.3522f, 8.0f, 0.0f, 3.0f, CubeDeformation(0.0f))
                     .texOffs(117, 73).addBox(1.8976f, -4.9f, -0.6478f, 6.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
                     .texOffs(117, 73).addBox(1.8976f, -4.9f, -2.6478f, 6.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
                     .texOffs(118, 73).addBox(2.8976f, -4.9f, -4.6478f, 4.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
-                    .texOffs(119, 73).addBox(3.8976f, -5.9f, -6.6478f, 2.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
-                    .texOffs(119, 73).mirror().addBox(4.0976f, -5.9f, -6.6478f, 2.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
+                    .texOffs(119, 73).addBox(3.8976f, -4.9f, -6.6478f, 2.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
+                    .texOffs(118, 72).mirror().addBox(4.0976f, -5.9f, -6.6478f, 2.0f, 1.0f, 3.0f, CubeDeformation(0.0f))
                     .mirror(false)
                     .texOffs(74, 135).mirror().addBox(2.8976f, -5.9f, 19.9522f, 4.0f, 1.0f, 2.0f, CubeDeformation(0.0f))
                     .mirror(false)
@@ -185,15 +184,15 @@ class BlimpModel(root: ModelPart) : EntityModel<BlimpRenderState>(root.getChild(
 
             val cube_r18: PartDefinition? = body.addOrReplaceChild(
                 "cube_r18",
-                CubeListBuilder.create().texOffs(48, 126)
-                    .addBox(-8.0f, -13.0f, -5.0f, 7.0f, 2.0f, 6.0f, CubeDeformation(0.0f)),
+                CubeListBuilder.create().texOffs(52, 130)
+                    .addBox(-8.0f, -12.0f, -1.0f, 7.0f, 1.0f, 2.0f, CubeDeformation(0.0f)),
                 PartPose.offsetAndRotation(9.4976f, -6.5f, -8.5478f, -1.5708f, 0.0f, 0.0f)
             )
 
             val cube_r19: PartDefinition? = body.addOrReplaceChild(
                 "cube_r19",
                 CubeListBuilder.create().texOffs(10, 129)
-                    .addBox(-6.0f, -4.0f, 1.0f, 2.0f, 8.0f, 2.0f, CubeDeformation(0.0f)),
+                    .addBox(-6.0f, -3.0f, 1.0f, 2.0f, 7.0f, 2.0f, CubeDeformation(0.0f)),
                 PartPose.offsetAndRotation(6.9976f, -5.5f, 6.9522f, 0.0f, -1.5708f, 0.0f)
             )
 
