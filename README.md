@@ -1,5 +1,6 @@
 # Blimpy Mod for Minecraft NeoForge
 
+![logo](./logo.png)
 
 This was a NeoForge port of [LittleLogistics](https://littlelogistics.murad.dev/) but now it only features blimps.
 
