@@ -268,6 +268,6 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             BlimpEntity::class.java, EntityDataSerializers.INT
         )
 
-        private val PASSENGER_OFFSET = Vec3(0.0, -0.2, 0.0)
+        private val PASSENGER_OFFSET = Vec3(0.0, -0.52, 0.0)
     }
 }

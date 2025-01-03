@@ -2,6 +2,7 @@ package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.blimp.model.BlimpBoatRenderer
+import com.github.bonndan.blimpy.blimp.model.BlimpModel
 import com.github.bonndan.blimpy.blimp.model.BlimpSteamTugModel
 import com.github.bonndan.blimpy.blimp.model.TrimCarModel
 import net.minecraft.client.renderer.entity.EntityRendererProvider
@@ -32,7 +33,7 @@ object ModClientEventHandler {
     fun onRegisterEntityRenderers(event: EntityRenderersEvent.RegisterLayerDefinitions) {
 
         event.registerLayerDefinition(TrimCarModel.Companion.LAYER_LOCATION) { TrimCarModel.Companion.createBodyLayer() }
-        event.registerLayerDefinition(BlimpSteamTugModel.Companion.LAYER_LOCATION) { BlimpSteamTugModel.Companion.createBodyLayer() }
+        event.registerLayerDefinition(BlimpModel.Companion.LAYER_LOCATION) { BlimpModel.Companion.createBodyLayer() }
     }
 
     /**

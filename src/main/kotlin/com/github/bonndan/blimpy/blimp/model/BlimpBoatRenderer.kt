@@ -26,11 +26,11 @@ class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
 
     private val blockRenderer: BlockRenderDispatcher
     private val model: EntityModel<BlimpRenderState>
-    private val texture: ResourceLocation = ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/barge/steam_tug_texture.png")
+    private val texture: ResourceLocation = ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/blimp_texture.png")
 
     init {
         this.shadowRadius = 0.8f
-        this.model = BlimpSteamTugModel(context.bakeLayer(BlimpSteamTugModel.LAYER_LOCATION))
+        this.model = BlimpModel(context.bakeLayer(BlimpModel.LAYER_LOCATION))
         this.blockRenderer = context.blockRenderDispatcher
     }
 
