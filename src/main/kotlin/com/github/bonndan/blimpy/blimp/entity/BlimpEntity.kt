@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.InteractionResult.CONSUME
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityDimensions
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.vehicle.AbstractBoat
 import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
@@ -32,6 +34,7 @@ import kotlin.math.min
 
 private const val COLOR = "Color"
 private const val MAX_HEIGHT = 300
+
 
 /**
  * A flying blimp which basically is a flying boat.
@@ -112,7 +115,12 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     private fun isInWaterOrOnLand(): Boolean = this.paddleSound != null
 
     override fun getPassengerAttachmentPoint(entity: Entity, dimensions: EntityDimensions, partialTick: Float): Vec3 {
-        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick).add(PASSENGER_OFFSET)
+        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick)
+            .add(Vec3(0.0, PASSENGER_Y_OFFSET, 0.0))
+    }
+
+    override fun getSinglePassengerXOffset(): Float {
+        return PASSENGER_X_OFFSET
     }
 
     fun setEngineOn(state: Boolean) {
@@ -136,14 +144,26 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
 
     override fun interact(player: Player, hand: InteractionHand): InteractionResult {
 
+        // if dyecolor is used on blimp
+        val color = DyeColor.getColor(player.getItemInHand(hand))
+        if (color != null) {
+            if (!level().isClientSide) {
+                setColorId(color.id)
+            }
+            // don't interact *and* use current item
+            return InteractionResult.SUCCESS
+        }
+
+        //right click with shift opens inventory
+        if (!level().isClientSide && player.isSecondaryUseActive) {
+            player.openMenu(createMenuProvider(), getDataAccessor()::write)
+            return CONSUME
+        }
+
         // right click works for riding player, otherwise would dismount
         val ret = super.interact(player, hand)
         if (ret.consumesAction()) {
             return ret
-        }
-
-        if (!level().isClientSide && this.isVehicle) {
-            return showEngineMenu(player)
         }
 
         return ret
@@ -152,10 +172,6 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     /*
      * menu / GUI stuff
      */
-    private fun showEngineMenu(pPlayer: Player): InteractionResult {
-        pPlayer.openMenu(createMenuProvider(), getDataAccessor()::write)
-        return InteractionResult.CONSUME
-    }
 
     private fun createMenuProvider(): MenuProvider {
         return object : MenuProvider {
@@ -268,6 +284,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             BlimpEntity::class.java, EntityDataSerializers.INT
         )
 
-        private val PASSENGER_OFFSET = Vec3(0.0, -0.52, 0.0)
+        private const val PASSENGER_Y_OFFSET = 0.1
+        private const val PASSENGER_X_OFFSET = 0.2F
     }
 }

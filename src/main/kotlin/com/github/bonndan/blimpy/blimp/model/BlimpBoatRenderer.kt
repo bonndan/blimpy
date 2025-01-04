@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
+import net.minecraft.world.item.DyeColor
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.api.distmarker.OnlyIn
 import kotlin.math.max
@@ -26,11 +27,13 @@ class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
 
     private val blockRenderer: BlockRenderDispatcher
     private val model: EntityModel<BlimpRenderState>
+    private val colorModel: EntityModel<BlimpRenderState>
     private val texture: ResourceLocation = ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/blimp_texture.png")
 
     init {
         this.shadowRadius = 0.8f
-        this.model = BlimpModel(context.bakeLayer(BlimpModel.LAYER_LOCATION))
+        this.model = BlimpBodyModel(context.bakeLayer(BlimpBodyModel.LAYER_LOCATION))
+        this.colorModel = BlimpTintModel(context.bakeLayer(BlimpTintModel.LAYER_LOCATION))
         this.blockRenderer = context.blockRenderDispatcher
     }
 
@@ -41,7 +44,7 @@ class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
         packedLight: Int,
     ) {
         poseStack.pushPose()
-        poseStack.translate(0.0f, 0.375f, 0.0f)
+        poseStack.translate(0.0f, 1.5f, 0.0f)
         poseStack.mulPose(Axis.YP.rotationDegrees(270.0f - renderState.yRot)) //TODO extra 90, fix in model
         val f = renderState.hurtTime
         if (f > 0.0f) {
@@ -50,33 +53,31 @@ class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
 
         poseStack.scale(-1.0f, -1.0f, 1.0f)
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0f))
-        poseStack.translate(0.0, -1.0, 0.0) //raise model
         model.setupAnim(renderState)
 
         val vertexconsumer = bufferSource.getBuffer(model.renderType(this.texture))
         model.renderToBuffer(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY)
 
+        renderColorModel(poseStack, colorModel, bufferSource, this.texture, packedLight, renderState)
         poseStack.popPose()
         super.render(renderState, poseStack, bufferSource, packedLight)
     }
 
-    private fun renderAdditionalModel(
+    private fun renderColorModel(
         poseStack: PoseStack,
         colorModel: EntityModel<BlimpRenderState>,
         buffer: MultiBufferSource,
         colorTexture: ResourceLocation,
         packedLight: Int,
-        yOffset: Float,
-        yRotation: Float,
+        renderState: BlimpRenderState,
     ) {
         poseStack.pushPose()
-        poseStack.translate(0f, yOffset, 0f)
-        poseStack.mulPose(Axis.YP.rotationDegrees(yRotation))
         colorModel.renderToBuffer(
             poseStack,
             buffer.getBuffer(RenderType.entityCutoutNoCull(colorTexture)),
             packedLight,
             OverlayTexture.NO_OVERLAY,
+            DyeColor.byId(renderState.getColorId()).textureDiffuseColor
         )
         poseStack.popPose()
     }
@@ -97,5 +98,6 @@ class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
         reusedState.isUnderWater = entity.isUnderWater()
         reusedState.rowingTimeLeft = entity.getRowingTime(0, partialTick)
         reusedState.rowingTimeRight = entity.getRowingTime(1, partialTick)
+        reusedState.setColorId(entity.getColorId())
     }
 }

@@ -4,11 +4,19 @@
 
 This was a NeoForge port of [LittleLogistics](https://littlelogistics.murad.dev/) but now it only features blimps. The models are made by [pega](https://www.fiverr.com/s/38y2BGL) are published under the same license as the source code.
 
-## How To?
+## How To...
+
+## Build it?
 
 Assemble boats, paper, a chest and a furnace.
 
 ![recipe](./blimp_recipe.png)
+
+
+## Load it?
+
+Press shift + right click to access the inventory from OUTSIDE the blimp (if not mounted).
+
 
 ## TODO
 

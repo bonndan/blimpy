@@ -2,9 +2,8 @@ package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.blimp.model.BlimpBoatRenderer
-import com.github.bonndan.blimpy.blimp.model.BlimpModel
-import com.github.bonndan.blimpy.blimp.model.BlimpSteamTugModel
-import com.github.bonndan.blimpy.blimp.model.TrimCarModel
+import com.github.bonndan.blimpy.blimp.model.BlimpBodyModel
+import com.github.bonndan.blimpy.blimp.model.BlimpTintModel
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
@@ -32,8 +31,8 @@ object ModClientEventHandler {
     @SubscribeEvent
     fun onRegisterEntityRenderers(event: EntityRenderersEvent.RegisterLayerDefinitions) {
 
-        event.registerLayerDefinition(TrimCarModel.Companion.LAYER_LOCATION) { TrimCarModel.Companion.createBodyLayer() }
-        event.registerLayerDefinition(BlimpModel.Companion.LAYER_LOCATION) { BlimpModel.Companion.createBodyLayer() }
+        event.registerLayerDefinition(BlimpBodyModel.Companion.LAYER_LOCATION) { BlimpBodyModel.Companion.createBodyLayer() }
+        event.registerLayerDefinition(BlimpTintModel.Companion.LAYER_LOCATION) { BlimpTintModel.Companion.createBodyLayer() }
     }
 
     /**

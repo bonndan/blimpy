@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level
 import java.util.function.Supplier
 
 private const val BLIMP_DIMENSION_WIDTH = 1.2f
-private const val BLIMP_DIMENSION_HEIGHT = 2.5f
+private const val BLIMP_DIMENSION_HEIGHT = 0.7f
 
 object ModEntityTypes {
 
