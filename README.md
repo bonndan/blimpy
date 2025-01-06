@@ -17,6 +17,10 @@ Assemble boats, paper, a chest and a furnace.
 
 Press shift + right click to access the inventory from OUTSIDE the blimp (if not mounted).
 
+## Control it?
+
+Press jump (space) to gain height and left crtl to sink. Otherwise the blimp is controlled like a boat
+
 
 ## TODO
 
@@ -24,6 +28,7 @@ Press shift + right click to access the inventory from OUTSIDE the blimp (if not
 * replace model with final one
 * fix sounds
 * fix screen
+* add more hitboxes
 
 ## License
 
