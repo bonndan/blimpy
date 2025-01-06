@@ -19,7 +19,7 @@ Press shift + right click to access the inventory from OUTSIDE the blimp (if not
 
 ## Control it?
 
-Press jump (space) to gain height and left crtl to sink. Otherwise the blimp is controlled like a boat
+Press jump (space) to gain height and left ctrl to sink. Otherwise, the blimp is controlled like a boat
 
 
 ## TODO
