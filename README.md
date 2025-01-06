@@ -6,18 +6,18 @@ This was a NeoForge port of [LittleLogistics](https://littlelogistics.murad.dev/
 
 ## How To...
 
-## Build it?
+### Build it?
 
 Assemble boats, paper, a chest and a furnace.
 
 ![recipe](./blimp_recipe.png)
 
 
-## Load it?
+### Load it?
 
 Press shift + right click to access the inventory from OUTSIDE the blimp (if not mounted).
 
-## Control it?
+### Control it?
 
 Press jump (space) to gain height and left ctrl to sink. Otherwise, the blimp is controlled like a boat
 
