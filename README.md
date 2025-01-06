@@ -21,6 +21,9 @@ Press shift + right click to access the inventory from OUTSIDE the blimp (if not
 
 Press jump (space) to gain height and left ctrl to sink. Otherwise, the blimp is controlled like a boat
 
+### Dye it?
+
+Use any dye color (item) on the blimp when not mounted.
 
 ## TODO
 
