@@ -8,6 +8,7 @@ import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
@@ -19,6 +20,7 @@ import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.MoverType
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.vehicle.AbstractBoat
@@ -27,6 +29,7 @@ import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
+import net.neoforged.neoforge.entity.PartEntity
 import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.toVec3
 import java.util.function.Supplier
 import kotlin.math.abs
@@ -44,6 +47,7 @@ private const val MAX_HEIGHT = 300
 class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropItem: Supplier<Item>) :
     AbstractBoat(entityType, level, dropItem) {
 
+    private val balloon: Balloon = Balloon(this)
 
     private val saveStateCallback = object : SaveStateCallback {
         override fun saveState(engineState: Boolean, remainingBurnTime: Int) {
@@ -107,6 +111,32 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     override fun getGroundFriction(): Float {
 
         return min(0.9f, super.getGroundFriction())
+    }
+
+    /**
+     * The hitbox of the blimp is more or less the size of a boat, so a sitting player can suffocate in ceilings,
+     * because the hitbox does not cover the balloon.
+     *
+     *  @see net.minecraft.world.entity.boss.EnderDragonPart
+     */
+    override fun isMultipartEntity(): Boolean {
+        return true
+    }
+
+    override fun getParts(): Array<out PartEntity<*>?> {
+        return arrayOf(balloon)
+    }
+
+    override fun move(type: MoverType, movement: Vec3) {
+
+        //move the balloon first to see if it collides
+        balloon.move(type, movement)
+        if (balloon.horizontalCollision || balloon.verticalCollision) {
+            //TODO check if it is better to use deltaMovement from balloon instead of doing nothing
+            return
+        }
+
+        super.move(type, movement)
     }
 
     /**
@@ -250,9 +280,17 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         }
     }
 
+    override fun recreateFromPacket(packet: ClientboundAddEntityPacket) {
+        super.recreateFromPacket(packet)
+        balloon.id = packet.id
+    }
+
     override fun tick() {
 
         super.tick()
+
+        //adjust balloon pos, reused code from LittleLogistics - not from EnderDragon
+        balloon.updatePosition(this)
 
         if (engine.isOn()) {
             engine.makeEmissions(
@@ -263,6 +301,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             )
         }
 
+        //TODO add friction to y deltaMovement
         if (abs(heightControl) > 0) {
             if (abs(heightControl) < 0.01)
                 heightControl = 0.0
