@@ -63,6 +63,11 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
      */
     private var heightControl = 0.0
 
+    /**
+     * hack: paddle sounds apper only if in water or on land, calculated on tick, since it calls getStatus()
+     */
+    private var isInWaterOrOnLand: Boolean = false
+
     override fun rideHeight(dimensions: EntityDimensions): Double {
         return (dimensions.height() / 3.0F).toDouble()
     }
@@ -81,7 +86,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             heightControl = super.getDefaultGravity()
         }
 
-        if ((waterLevelAbove < 0 || isInWaterOrOnLand()) && heightControl > 0) {
+        if (isInWaterOrOnLand && heightControl > 0) {
             heightControl = 0.0
         }
 
@@ -138,11 +143,6 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
 
         super.move(type, movement)
     }
-
-    /**
-     * hack: paddle sounds apper only if in water or on land
-     */
-    private fun isInWaterOrOnLand(): Boolean = this.paddleSound != null
 
     override fun getPassengerAttachmentPoint(entity: Entity, dimensions: EntityDimensions, partialTick: Float): Vec3 {
         return super.getPassengerAttachmentPoint(entity, dimensions, partialTick)
@@ -288,6 +288,9 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     override fun tick() {
 
         super.tick()
+
+        //calculate status once per tick
+        this.isInWaterOrOnLand = this.paddleSound != null
 
         //adjust balloon pos, reused code from LittleLogistics - not from EnderDragon
         balloon.updatePosition(this)
