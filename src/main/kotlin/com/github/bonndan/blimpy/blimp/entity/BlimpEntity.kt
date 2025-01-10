@@ -5,6 +5,9 @@ import com.github.bonndan.blimpy.blimp.container.BlimpDataAccessor
 import com.github.bonndan.blimpy.blimp.container.BlimpMenu
 import com.github.bonndan.blimpy.blimp.entity.engine.FueledEngine
 import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
+import com.github.bonndan.blimpy.setup.ModItems
+import com.github.bonndan.blimpy.setup.ModMenuTypes
+import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
@@ -12,11 +15,15 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.resources.ResourceKey
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionResult.CONSUME
 import net.minecraft.world.MenuProvider
+import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.entity.EntityType
@@ -24,19 +31,19 @@ import net.minecraft.world.entity.MoverType
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.vehicle.AbstractBoat
+import net.minecraft.world.entity.vehicle.ContainerEntity
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.storage.loot.LootTable
 import net.minecraft.world.phys.Vec3
 import net.neoforged.neoforge.entity.PartEntity
 import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.toVec3
 import java.util.function.Supplier
 import kotlin.math.abs
 import kotlin.math.min
-
-private const val COLOR = "Color"
-private const val MAX_HEIGHT = 300
 
 
 /**
@@ -45,7 +52,7 @@ private const val MAX_HEIGHT = 300
  *
  */
 class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropItem: Supplier<Item>) :
-    AbstractBoat(entityType, level, dropItem) {
+    AbstractBoat(entityType, level, dropItem), ContainerEntity {
 
     private val balloon: Balloon = Balloon(this)
 
@@ -57,6 +64,13 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     val engine = FueledEngine(saveStateCallback, level().fuelValues())
+
+    /**
+     * see ChestBoat
+     */
+    private var itemStacks = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY)
+    private var lootTable: ResourceKey<LootTable>? = null
+    private var lootTableSeed: Long = 0
 
     /**
      * player input based height control
@@ -163,12 +177,12 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
 
     fun getColorId(): Int? {
         val color = getEntityData().get(COLOR_ID)
-        return if (color == -1) null else color
+        return if (color == -ENGINE_SLOT) null else color
     }
 
     fun setColorId(color: Int?) {
         var color = color
-        if (color == null) color = -1
+        if (color == null) color = -ENGINE_SLOT
         getEntityData()[COLOR_ID] = color
     }
 
@@ -241,7 +255,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         super.defineSynchedData(pBuilder)
         pBuilder.define(ENGINE_IS_ON, false)
         pBuilder.define(REMAINING_BURN_TIME, 0)
-        pBuilder.define(COLOR_ID, -1)
+        pBuilder.define(COLOR_ID, -ENGINE_SLOT)
     }
 
     override fun onSyncedDataUpdated(key: EntityDataAccessor<*>) {
@@ -295,6 +309,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         //adjust balloon pos, reused code from LittleLogistics - not from EnderDragon
         balloon.updatePosition(this)
 
+        engine.tickFuel()
         if (engine.isOn()) {
             engine.makeEmissions(
                 level(),
@@ -315,6 +330,111 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
 
     fun isValid(player: Player): Boolean = !this.isRemoved && player.canInteractWithEntity(this.boundingBox, 4.0)
 
+    /*
+     * container stuff
+     */
+
+    override fun destroy(level: ServerLevel, damageSource: DamageSource) {
+        this.destroy(level, this.dropItem) //drop self
+        this.chestVehicleDestroyed(damageSource, level, this) //drop chest contents
+        this.spawnAtLocation(level, engine.getStackInSlot(ENGINE_SLOT)) //drop engine content
+    }
+
+    override fun level(): Level {
+        return super.level()
+    }
+
+    override fun position(): Vec3 {
+        return super.position()
+    }
+
+    override fun getDisplayName(): Component {
+        return super<AbstractBoat>.displayName!!
+    }
+
+    override fun getContainerLootTable(): ResourceKey<LootTable>? {
+        return this.lootTable
+    }
+
+    override fun setContainerLootTable(lootTable: ResourceKey<LootTable>?) {
+        this.lootTable = lootTable
+    }
+
+    override fun getContainerLootTableSeed(): Long {
+        return this.lootTableSeed
+    }
+
+    override fun setContainerLootTableSeed(lootTableSeed: Long) {
+        this.lootTableSeed = lootTableSeed
+    }
+
+    /**
+     * Return only the "chest" content
+     */
+    override fun getItemStacks(): NonNullList<ItemStack> {
+        return itemStacks
+    }
+
+    override fun clearItemStacks() {
+        engine.setStackInSlot(1, ItemStack.EMPTY)
+        this.itemStacks = NonNullList.withSize(this.containerSize, ItemStack.EMPTY);
+    }
+
+    override fun getContainerSize(): Int {
+        return CONTAINER_SIZE
+    }
+
+    override fun getItem(slot: Int): ItemStack {
+        if (slot == ENGINE_SLOT) {
+            return engine.getStackInSlot(slot)
+        }
+
+        return itemStacks[slot - 1]
+    }
+
+    override fun removeItem(slot: Int, amount: Int): ItemStack {
+        if (slot == ENGINE_SLOT) {
+            return engine.extractItem(slot, amount, false)
+        }
+
+        return removeChestVehicleItem(slot - 1, amount)
+    }
+
+    override fun removeItemNoUpdate(slot: Int): ItemStack {
+        if (slot == ENGINE_SLOT) {
+            return engine.getStackInSlot(slot)
+        }
+        return this.removeChestVehicleItemNoUpdate(slot - 1)
+    }
+
+    override fun setItem(slot: Int, stack: ItemStack) {
+        if (slot == ENGINE_SLOT) {
+            engine.setStackInSlot(slot, stack)
+        }
+
+        itemStacks[slot - 1] = stack
+    }
+
+    override fun setChanged() {
+        //nothing
+    }
+
+    override fun stillValid(player: Player): Boolean {
+        return this.isChestVehicleStillValid(player)
+    }
+
+    override fun clearContent() {
+        this.clearChestVehicleContent()
+    }
+
+    override fun createMenu(
+        containerId: Int,
+        playerInventory: Inventory,
+        player: Player,
+    ): AbstractContainerMenu? {
+        return createMenuProvider().createMenu(containerId, playerInventory, player)
+    }
+
     companion object {
         private val COLOR_ID: EntityDataAccessor<Int> = SynchedEntityData.defineId(
             BlimpEntity::class.java, EntityDataSerializers.INT
@@ -328,5 +448,10 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
 
         private const val PASSENGER_Y_OFFSET = 0.1
         private const val PASSENGER_X_OFFSET = 0.2F
+
+        private const val COLOR = "Color"
+        private const val MAX_HEIGHT = 300
+        private const val ENGINE_SLOT = 0
+        const val CONTAINER_SIZE = 9
     }
 }
