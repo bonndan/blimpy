@@ -5,8 +5,6 @@ import com.github.bonndan.blimpy.blimp.container.BlimpDataAccessor
 import com.github.bonndan.blimpy.blimp.container.BlimpMenu
 import com.github.bonndan.blimpy.blimp.entity.engine.FueledEngine
 import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
-import com.github.bonndan.blimpy.setup.ModItems
-import com.github.bonndan.blimpy.setup.ModMenuTypes
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -18,7 +16,6 @@ import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundEvents
-import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionResult.CONSUME
