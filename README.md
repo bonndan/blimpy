@@ -4,9 +4,9 @@
 
 This was a NeoForge port of [LittleLogistics](https://littlelogistics.murad.dev/) but now it only features blimps. The model is made by [pega](https://www.fiverr.com/s/38y2BGL) are published under the same license as the source code. The item icon is made by [teezeepeezee](https://www.teezeepeezee.com/).
 
-This mod is sponsored by [Agile Unicorn](https://www.teezeepeezee.com/).
+This mod is sponsored by [Agile Unicorn](https://agile-unicorn.com/).
 
-[<img src="./sponsor.png">](https://www.teezeepeezee.com/)
+[<img src="./sponsor.png">](https://agile-unicorn.com/)
 
 
 ## How To...
