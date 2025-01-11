@@ -32,10 +32,7 @@ Use any dye color (item) on the blimp when not mounted.
 
 ## TODO
 
-* fix blimp item icon
-* replace model with final one
 * fix sounds
-* fix screen
 * add more hitboxes
 
 ## License
