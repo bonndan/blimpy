@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Tooltip
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.renderer.CoreShaders
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.network.chat.Component
@@ -12,31 +13,37 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
 
 class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
-    AbstractVehicleScreen<BlimpMenu>(menu, inventory, component) {
+    AbstractContainerScreen<BlimpMenu>(menu, inventory, component) {
 
     private lateinit var on: Button
     private lateinit var off: Button
 
-    private fun tooltipOf(translatableString: String): Tooltip {
-        return Tooltip.create(Component.translatable(translatableString))
+    override fun render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTicks: Float) {
+        this.renderBackground(graphics, mouseX, mouseY, partialTicks)
+        super.render(graphics, mouseX, mouseY, partialTicks)
+        this.renderTooltip(graphics, mouseX, mouseY)
     }
 
     override fun init() {
         super.init()
         on = Button.Builder(Component.literal("->")) { menu.setEngineState(true) }
-            .pos(this.guiLeft + 130, this.guiTop + 25)
+            .pos(this.guiLeft + 130, this.guiTop + 23)
             .size(20, 20)
-            .tooltip(tooltipOf("screen.blimpy.locomotive.on"))
+            .tooltip(tooltipOf("screen.blimpy.engine.on"))
             .build()
 
         off = Button.Builder(Component.literal("x")) { menu.setEngineState(false) }
-            .pos(this.guiLeft + 96, this.guiTop + 25)
+            .pos(this.guiLeft + 104, this.guiTop + 23)
             .size(20, 20)
-            .tooltip(tooltipOf("screen.blimpy.locomotive.off"))
+            .tooltip(tooltipOf("screen.blimpy.engine.off"))
             .build()
 
         this.addRenderableWidget(off)
         this.addRenderableWidget(on)
+    }
+
+    private fun tooltipOf(translatableString: String): Tooltip {
+        return Tooltip.create(Component.translatable(translatableString))
     }
 
     override fun renderBg(graphics: GuiGraphics, pPartialTick: Float, x: Int, y: Int) {
@@ -51,8 +58,15 @@ class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
 
         graphics.blit(RenderType::guiTextured, GUI, i, j, 0f, 0f, this.xSize, this.ySize, 256, 256)
         if (menu.isLit) {
-            val k = menu.getBurnProgress()
-            graphics.blit(RenderType::guiTextured, GUI, i + 43, j + 23 + 12 - k, 176f, 12f - k, 14, k + 1, 256, 256)
+            val progress = menu.getBurnProgress()
+            val x1 = i + 80
+            val y1 = j + 21 - progress
+            val uOffset = 176f
+            val vOffset = 12f - progress
+            val uWidth = 14
+            val vHeight = progress + 1
+
+            graphics.blit(RenderType::guiTextured, GUI, x1, y1, uOffset, vOffset, uWidth, vHeight, 256, 256)
         }
     }
 
