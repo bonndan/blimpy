@@ -276,12 +276,18 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         }
     }
 
+    /**
+     * Updates entity state from saved data (engine, color, contents...)
+     */
     override fun readAdditionalSaveData(compound: CompoundTag) {
         super.readAdditionalSaveData(compound)
         engine.readAdditionalSaveData(compound, registryAccess())
+
         if (compound.contains(COLOR, Tag.TAG_INT.toInt())) {
             setColorId(compound.getInt(COLOR))
         }
+
+        this.readChestVehicleSaveData(compound, this.registryAccess());
     }
 
     override fun addAdditionalSaveData(compound: CompoundTag) {
@@ -292,6 +298,8 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         if (color != null) {
             compound.putInt(COLOR, color)
         }
+
+        this.addChestVehicleSaveData(compound, this.registryAccess());
     }
 
     override fun recreateFromPacket(packet: ClientboundAddEntityPacket) {
@@ -331,7 +339,9 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     fun isValid(player: Player): Boolean = !this.isRemoved && player.canInteractWithEntity(this.boundingBox, 4.0)
 
     /*
-     * container stuff
+     * container stuff:
+     * - the engine works like a container foal fuel (coal) with one slot
+     * - there are 9 extra slots to store stuff
      */
 
     override fun destroy(level: ServerLevel, damageSource: DamageSource) {
@@ -376,7 +386,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     override fun clearItemStacks() {
-        engine.setStackInSlot(1, ItemStack.EMPTY)
+        engine.setStackInSlot(0, ItemStack.EMPTY)
         this.itemStacks = NonNullList.withSize(this.containerSize, ItemStack.EMPTY);
     }
 
