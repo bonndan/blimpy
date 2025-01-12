@@ -30,11 +30,6 @@ Press jump (space) to gain height and left ctrl to sink. Otherwise, the blimp is
 
 Use any dye color (item) on the blimp when not mounted.
 
-## TODO
-
-* fix sounds
-* add more hitboxes
-
 ## License
 
 ### Source Code / java files
