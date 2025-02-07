@@ -1,8 +1,5 @@
 {
   "item.blimpy.blimp": "Blimp",
 
-  "entity.blimpy.blimp": "Blimp",
-
-  "screen.blimpy.tug": "Steam Tug"
-
+  "entity.blimpy.blimp": "Blimp"
 }
