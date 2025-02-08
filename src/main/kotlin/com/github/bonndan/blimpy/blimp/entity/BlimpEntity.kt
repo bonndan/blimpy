@@ -6,6 +6,8 @@ import com.github.bonndan.blimpy.blimp.container.BlimpMenu
 import com.github.bonndan.blimpy.blimp.entity.engine.FueledEngine
 import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
 import com.github.bonndan.blimpy.setup.ModSounds
+import net.minecraft.client.Minecraft
+import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -62,6 +64,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     val engine = FueledEngine(saveStateCallback, level().fuelValues())
+    var thrustSoundCooldown = 0
 
     /**
      * see ChestBoat
@@ -123,7 +126,11 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     private fun playThrustSound() {
-        this.playSound(ModSounds.HISS.get())
+        val level = this.level()
+        if (level is ClientLevel && thrustSoundCooldown == 0) {
+            level.playLocalSound(this, ModSounds.HISS.get(), soundSource, 0.8f, 1.0f)
+            thrustSoundCooldown = 4 //  play sound every n ticks TODO move it somewhere more meaningful
+        }
     }
 
     /**
@@ -330,6 +337,10 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         }
 
         applyVerticalFriction()
+
+        if (thrustSoundCooldown > 0) {
+            thrustSoundCooldown--
+        }
     }
 
     private fun applyVerticalFriction() {

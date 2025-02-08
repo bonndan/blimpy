@@ -1,7 +1,10 @@
 {
     "hiss": {
         "sounds": [
-            "blimpy:hiss"
+            {
+                "name": "blimpy:hiss",
+                "preload": true
+            }
         ]
     }
 }
