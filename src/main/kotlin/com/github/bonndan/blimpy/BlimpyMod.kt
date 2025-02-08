@@ -18,12 +18,7 @@ class BlimpyMod(modBus: IEventBus, container: ModContainer) {
         modBus.addListener(RegisterMenuScreensEvent::class.java) {
             event: RegisterMenuScreensEvent -> this.registerScreens(event)
         }
-
-        container.registerConfig(ModConfig.Type.COMMON, ShippingConfig.Common.SPEC, "blimpy-common.toml")
-        container.registerConfig(ModConfig.Type.CLIENT, ShippingConfig.Client.SPEC, "blimpy-client.toml")
-        container.registerConfig(ModConfig.Type.SERVER, ShippingConfig.Server.SPEC, "blimpy-server.toml")
     }
-
 
     private fun registerScreens(event: RegisterMenuScreensEvent) {
 

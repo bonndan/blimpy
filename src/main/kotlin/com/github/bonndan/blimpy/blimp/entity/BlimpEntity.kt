@@ -5,6 +5,9 @@ import com.github.bonndan.blimpy.blimp.container.BlimpDataAccessor
 import com.github.bonndan.blimpy.blimp.container.BlimpMenu
 import com.github.bonndan.blimpy.blimp.entity.engine.FueledEngine
 import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
+import com.github.bonndan.blimpy.setup.ModSounds
+import net.minecraft.client.Minecraft
+import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -61,6 +64,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     val engine = FueledEngine(saveStateCallback, level().fuelValues())
+    var thrustSoundCooldown = 0
 
     /**
      * see ChestBoat
@@ -70,14 +74,12 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     private var lootTableSeed: Long = 0
 
     /**
-     * player input based height control
+     * player input based height control, equals gravity. Positive heightControl causes downward movement
      */
     private var heightControl = 0.0
 
-    /**
-     * hack: paddle sounds apper only if in water or on land, calculated on tick, since it calls getStatus()
-     */
-    private var isInWaterOrOnLand: Boolean = false
+
+    private var status: Status = Status.IN_AIR
 
     override fun rideHeight(dimensions: EntityDimensions): Double {
         return (dimensions.height() / 3.0F).toDouble()
@@ -97,8 +99,14 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             heightControl = super.getDefaultGravity()
         }
 
-        if (isInWaterOrOnLand && heightControl > 0) {
+        if (status == Status.ON_LAND && heightControl > 0) {
             heightControl = 0.0
+        }
+
+        //raise from water, undo floatBoat
+        if (status == Status.IN_WATER && heightControl >= 0 && engine.isOn()) {
+            heightControl = -0.05
+            deltaMovement = deltaMovement.add(Vec3(0.0, 0.01, 0.0)) //TODO hacky
         }
 
         if (engine.isOn()) {
@@ -118,7 +126,11 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     private fun playThrustSound() {
-        this.playSound(SoundEvents.AXOLOTL_IDLE_AIR)
+        val level = this.level()
+        if (level is ClientLevel && thrustSoundCooldown == 0) {
+            level.playLocalSound(this, ModSounds.HISS.get(), soundSource, 0.8f, 1.0f)
+            thrustSoundCooldown = 4 //  play sound every n ticks TODO move it somewhere more meaningful
+        }
     }
 
     /**
@@ -284,7 +296,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             setColorId(compound.getInt(COLOR))
         }
 
-        this.readChestVehicleSaveData(compound, this.registryAccess());
+        this.readChestVehicleSaveData(compound, this.registryAccess())
     }
 
     override fun addAdditionalSaveData(compound: CompoundTag) {
@@ -296,7 +308,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             compound.putInt(COLOR, color)
         }
 
-        this.addChestVehicleSaveData(compound, this.registryAccess());
+        this.addChestVehicleSaveData(compound, this.registryAccess())
     }
 
     override fun recreateFromPacket(packet: ClientboundAddEntityPacket) {
@@ -309,7 +321,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         super.tick()
 
         //calculate status once per tick
-        this.isInWaterOrOnLand = this.paddleSound != null
+        deriveStatusFromPaddleSound()
 
         //adjust balloon pos, reused code from LittleLogistics - not from EnderDragon
         balloon.updatePosition(this)
@@ -324,12 +336,36 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
             )
         }
 
-        //TODO add friction to y deltaMovement
+        applyVerticalFriction()
+
+        if (thrustSoundCooldown > 0) {
+            thrustSoundCooldown--
+        }
+    }
+
+    private fun applyVerticalFriction() {
         if (abs(heightControl) > 0) {
             if (abs(heightControl) < 0.01)
                 heightControl = 0.0
             else
                 heightControl *= 0.5
+        }
+
+        // add friction to y deltaMovement
+        val dy = deltaMovement.y * 0.95
+        deltaMovement = Vec3(deltaMovement.x, dy, deltaMovement.z)
+    }
+
+    /**
+     * hack: paddle sounds apper only if in water or on land, calculated on tick, since it calls getStatus()
+     */
+    private fun deriveStatusFromPaddleSound() {
+
+        val sound = this.paddleSound
+        this.status = when (sound) {
+            SoundEvents.BOAT_PADDLE_WATER -> Status.IN_WATER
+            SoundEvents.BOAT_PADDLE_LAND -> Status.ON_LAND
+            else -> Status.IN_AIR
         }
     }
 
@@ -384,7 +420,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
 
     override fun clearItemStacks() {
         engine.setStackInSlot(0, ItemStack.EMPTY)
-        this.itemStacks = NonNullList.withSize(this.containerSize, ItemStack.EMPTY);
+        this.itemStacks = NonNullList.withSize(this.containerSize, ItemStack.EMPTY)
     }
 
     override fun getContainerSize(): Int {
@@ -457,7 +493,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         private const val PASSENGER_X_OFFSET = 0.2F
 
         private const val COLOR = "Color"
-        private const val MAX_HEIGHT = 300
+        private const val MAX_HEIGHT = 350
         private const val ENGINE_SLOT = 0
         const val CONTAINER_SIZE = 9
     }

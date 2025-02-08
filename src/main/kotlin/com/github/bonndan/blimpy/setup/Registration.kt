@@ -4,7 +4,6 @@ import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.network.VehiclePacketHandler
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.crafting.RecipeSerializer
@@ -21,7 +20,7 @@ object Registration {
     val ITEMS: DeferredRegister.Items = DeferredRegister.createItems(BlimpyMod.MOD_ID);
     val RECIPE_SERIALIZERS: DeferredRegister<RecipeSerializer<*>> = createRegister(BuiltInRegistries.RECIPE_SERIALIZER)
     val TILE_ENTITIES: DeferredRegister<BlockEntityType<*>> = createRegister(BuiltInRegistries.BLOCK_ENTITY_TYPE)
-    val SOUND_EVENTS: DeferredRegister<SoundEvent> = createRegister(BuiltInRegistries.SOUND_EVENT)
+
 
 
     private fun <T> createRegister(registry: Registry<T>): DeferredRegister<T> {
@@ -35,7 +34,6 @@ object Registration {
         RECIPE_SERIALIZERS.register(eventBus)
         TILE_ENTITIES.register(eventBus)
         ENTITIES.register(eventBus)
-        SOUND_EVENTS.register(eventBus)
 
         //TODO static calls used to ensure correct loading sequence
         ModBlocks.register() //register blocks before items
@@ -44,6 +42,6 @@ object Registration {
         ModTileEntitiesTypes.register()
         ModMenuTypes.register()
         eventBus.register(VehiclePacketHandler)
-        ModSounds.register()
+        ModSounds.register(eventBus)
     }
 }
