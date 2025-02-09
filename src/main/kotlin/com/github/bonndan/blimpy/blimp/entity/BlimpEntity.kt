@@ -6,7 +6,6 @@ import com.github.bonndan.blimpy.blimp.container.BlimpMenu
 import com.github.bonndan.blimpy.blimp.entity.engine.FueledEngine
 import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
 import com.github.bonndan.blimpy.setup.ModSounds
-import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag

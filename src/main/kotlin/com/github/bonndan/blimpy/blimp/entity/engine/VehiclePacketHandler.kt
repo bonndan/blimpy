@@ -1,4 +1,4 @@
-package com.github.bonndan.blimpy.network
+package com.github.bonndan.blimpy.blimp.entity.engine
 
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload

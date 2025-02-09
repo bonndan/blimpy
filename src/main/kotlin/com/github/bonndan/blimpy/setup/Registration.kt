@@ -1,7 +1,8 @@
 package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.BlimpyMod
-import com.github.bonndan.blimpy.network.VehiclePacketHandler
+import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacketHandler
+import com.github.bonndan.blimpy.blimp.entity.engine.VehiclePacketHandler
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.entity.EntityType
@@ -42,6 +43,7 @@ object Registration {
         ModTileEntitiesTypes.register()
         ModMenuTypes.register()
         eventBus.register(VehiclePacketHandler)
+        eventBus.register(BombPacketHandler)
         ModSounds.register(eventBus)
     }
 }

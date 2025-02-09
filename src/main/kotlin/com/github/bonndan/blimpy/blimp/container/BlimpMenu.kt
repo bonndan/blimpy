@@ -1,8 +1,8 @@
 package com.github.bonndan.blimpy.blimp.container
 
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
-import com.github.bonndan.blimpy.network.SetEnginePacket
-import com.github.bonndan.blimpy.network.VehiclePacketHandler
+import com.github.bonndan.blimpy.blimp.entity.engine.SetEnginePacket
+import com.github.bonndan.blimpy.blimp.entity.engine.VehiclePacketHandler
 import com.github.bonndan.blimpy.setup.ModMenuTypes
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container

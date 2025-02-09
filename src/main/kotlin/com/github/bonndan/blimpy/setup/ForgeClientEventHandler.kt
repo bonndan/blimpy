@@ -2,14 +2,20 @@ package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
+import com.github.bonndan.blimpy.blimp.entity.bombbay.BombBay
+import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacket
+import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacketHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Player
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
 import net.neoforged.neoforge.client.event.InputEvent
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent
 import org.lwjgl.glfw.GLFW
+
 
 /**
  * Forge-wide event bus
@@ -22,23 +28,45 @@ object ForgeClientEventHandler {
 
     @SubscribeEvent
     fun onKeyInputEvent(event: InputEvent.Key) {
+
         val player = Minecraft.getInstance().player
 
         if (event.key != GLFW.GLFW_KEY_LEFT_CONTROL && event.key != GLFW.GLFW_KEY_SPACE) {
             return
         }
 
-        if (player !is LocalPlayer || !player.isPassenger) {
+        if (!isRidingTheBlimp(player)) {
             return
         }
 
-        val vehicle = player.vehicle
-        if (vehicle is BlimpEntity) {
-            when (event.key) {
-                GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.sink()
-                GLFW.GLFW_KEY_SPACE -> vehicle.rise()
-            }
+        val vehicle = player!!.vehicle as BlimpEntity
+        when (event.key) {
+            GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.sink()
+            GLFW.GLFW_KEY_SPACE -> vehicle.rise()
         }
     }
 
+    @SubscribeEvent(receiveCanceled = true)
+    fun onPlayerRightClickEvent(event: PlayerInteractEvent.RightClickItem) {
+
+        val player = event.entity
+        if (!isRidingTheBlimp(player)) {
+            return
+        }
+
+        if (!BombBay.launchBomb(event, player)) {
+            return
+        }
+
+        BombPacketHandler.send(BombPacket(player.vehicle!!.id))
+    }
+
+    fun isRidingTheBlimp(player: Player?): Boolean {
+
+        if (player !is LocalPlayer || !player.isPassenger) {
+            return false
+        }
+
+        return player.vehicle is BlimpEntity
+    }
 }
