@@ -14,7 +14,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent
 
 object BombBay {
 
-    @OnlyIn(Dist.DEDICATED_SERVER)
     fun launchBomb(player: ServerPlayer) {
 
         val itemStack = player.getItemInHand(InteractionHand.MAIN_HAND)
@@ -29,7 +28,6 @@ object BombBay {
 
         val tnt = PrimedTnt(level, x, y, z, player)
         level.addFreshEntity(tnt)
-
         level.gameEvent(player, GameEvent.PRIME_FUSE, player.blockPosition())
 
         if (!player.abilities.instabuild) {
