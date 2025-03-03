@@ -15,16 +15,6 @@ class ModRecipeProvider(recipeOutput: RecipeOutput, pRegistries: HolderLookup.Pr
 
     override fun buildRecipes() {
 
-        /*
-        this.shaped(RecipeCategory.REDSTONE, ModBlocks.FLUID_HOPPER.get(), 1)
-            .define('_', Items.GLASS)
-            .define('$', Items.HOPPER)
-            .pattern("_\$_")
-            .pattern(" _ ")
-            .unlockedBy("has_item", has(Items.HOPPER))
-            .save(output)
-         */
-
         this.shaped(RecipeCategory.TRANSPORTATION, ModItems.BLIMP.get(), 1)
             .define('^', Items.PAPER)
             .define('f', Items.FURNACE)
