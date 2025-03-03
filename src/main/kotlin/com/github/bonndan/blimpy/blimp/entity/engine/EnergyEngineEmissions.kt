@@ -1,6 +1,6 @@
 package com.github.bonndan.blimpy.blimp.entity.engine
 
-import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.core.particles.SimpleParticleType
 import net.minecraft.util.RandomSource
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
@@ -34,12 +34,15 @@ object EnergyEngineEmissions : Emissions {
         val zDrift: Double = (if (h.get()) 1 else -1) * random.nextDouble() * 2
 
         level.addParticle(
-            ParticleTypes.EFFECT,
+            SimpleParticleType(false),
+            false,
             true,
             pos.x + 0.5 + random.nextDouble() / 3.0 * (if (random.nextBoolean()) 1 else -1).toDouble(),
             pos.y + random.nextDouble() + random.nextDouble(),
             pos.z + 0.5 + random.nextDouble() / 3.0 * (if (random.nextBoolean()) 1 else -1).toDouble(),
-            0.007 * xDrift + dx, 0.05 + dy, 0.007 * zDrift + dz
+            0.007 * xDrift + dx,
+            0.05 + dy,
+            0.007 * zDrift + dz
         )
     }
 }
