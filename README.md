@@ -32,7 +32,7 @@ Use any dye color (item) on the blimp when not mounted.
 
 ### Drop bombs
 
-Hold a TNT in the main hand a right click in the air when flying. A primed TNT is the dropped from the bomb bay.
+Hold a TNT in the main hand a right click in the air when flying. A primed TNT is then dropped from the bomb bay.
 
 ## License
 

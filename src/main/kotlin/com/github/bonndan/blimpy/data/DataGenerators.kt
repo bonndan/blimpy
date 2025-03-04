@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.github.bonndan.blimpy.data
 
 import com.github.bonndan.blimpy.BlimpyMod
