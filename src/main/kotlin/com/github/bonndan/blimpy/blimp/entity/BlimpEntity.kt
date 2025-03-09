@@ -103,12 +103,12 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         }
 
         //raise from water, undo floatBoat
-        if (status == Status.IN_WATER && heightControl >= 0 && engine.isOn()) {
+        if (status == Status.IN_WATER && heightControl >= 0 && engine.isLit()) {
             heightControl = -0.05
             deltaMovement = deltaMovement.add(Vec3(0.0, 0.01, 0.0)) //TODO hacky
         }
 
-        if (engine.isOn()) {
+        if (engine.isLit()) {
             return 0.0 + heightControl
         }
         return super.getDefaultGravity()
@@ -120,6 +120,11 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     fun rise() {
+
+        if (!engine.isLit()) {
+            return
+        }
+
         heightControl -= super.getDefaultGravity() * 0.1
         playThrustSound()
     }
@@ -326,7 +331,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         balloon.updatePosition(this)
 
         engine.tickFuel()
-        if (engine.isOn()) {
+        if (engine.isLit()) {
             engine.makeEmissions(
                 level(),
                 this.onPos.above().above().toVec3(),

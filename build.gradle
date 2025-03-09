@@ -22,6 +22,7 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+    mavenCentral()
     maven {
         name = "Kotlin for Forge"
         setUrl("https://thedarkcolour.github.io/KotlinForForge/")
@@ -131,10 +132,10 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
     // https://github.com/gradle/gradle/issues/28809
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.11.1'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.12.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.26.3'
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation(platform("org.junit:junit-bom:5.12.0"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation group: 'org.mockito.kotlin', name: 'mockito-kotlin', version: '5.4.0'
     testImplementation group: "net.neoforged", name: "testframework", version: neo_version
