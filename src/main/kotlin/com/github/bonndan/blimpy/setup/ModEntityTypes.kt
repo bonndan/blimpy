@@ -2,6 +2,7 @@ package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
+import com.github.bonndan.blimpy.locomotive.entity.LocomotiveEntity
 import com.github.bonndan.blimpy.setup.Registration.ENTITIES
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
@@ -20,7 +21,7 @@ object ModEntityTypes {
     }
 
     val BLIMP: Supplier<EntityType<BlimpEntity>> =
-        ENTITIES.register("blimp", Supplier<EntityType<BlimpEntity>> {
+        ENTITIES.register("blimp", Supplier {
             EntityType.Builder.of(
                 { type: EntityType<BlimpEntity>, level: Level -> BlimpEntity(type, level) { ModItems.BLIMP.get() } },
                 MobCategory.MISC
@@ -29,6 +30,18 @@ object ModEntityTypes {
                 .clientTrackingRange(8)
                 .setShouldReceiveVelocityUpdates(true)
                 .build(asResourceKey("blimp"))
+        })
+
+    val LOCOMOTIVE: Supplier<EntityType<LocomotiveEntity>> =
+        ENTITIES.register("locomotive", Supplier {
+            EntityType.Builder.of(
+                { type: EntityType<LocomotiveEntity>, level: Level -> LocomotiveEntity(type, level) },
+                MobCategory.MISC
+            )
+                .sized(1.0f, 1.0f)
+                .clientTrackingRange(8)
+                .setShouldReceiveVelocityUpdates(true)
+                .build(asResourceKey("locomotive"))
         })
 
 

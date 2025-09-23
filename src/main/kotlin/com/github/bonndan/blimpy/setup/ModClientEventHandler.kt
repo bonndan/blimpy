@@ -4,7 +4,10 @@ import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.blimp.model.BlimpBoatRenderer
 import com.github.bonndan.blimpy.blimp.model.BlimpBodyModel
 import com.github.bonndan.blimpy.blimp.model.BlimpTintModel
+import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.entity.MinecartRenderer
+import net.minecraft.resources.ResourceLocation
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
@@ -17,13 +20,18 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent
 @EventBusSubscriber(modid = BlimpyMod.Companion.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
 object ModClientEventHandler {
 
+    // Ersatz für EntityModelLayers.MINECART
+    val MINECART_LAYER = ModelLayerLocation(ResourceLocation.fromNamespaceAndPath("minecraft", "minecart"), "main")
+
     @SubscribeEvent
     fun onRegisterEntityRenderers(event: EntityRenderersEvent.RegisterRenderers) {
 
         event.registerEntityRenderer(ModEntityTypes.BLIMP.get()) { ctx: EntityRendererProvider.Context ->
-            BlimpBoatRenderer(
-                ctx
-            )
+            BlimpBoatRenderer(ctx)
+        }
+
+        event.registerEntityRenderer(ModEntityTypes.LOCOMOTIVE.get()) { ctx: EntityRendererProvider.Context ->
+            MinecartRenderer(ctx, MINECART_LAYER)
         }
 
     }
@@ -31,7 +39,7 @@ object ModClientEventHandler {
     @SubscribeEvent
     fun onRegisterEntityRenderers(event: EntityRenderersEvent.RegisterLayerDefinitions) {
 
-        event.registerLayerDefinition(BlimpBodyModel.Companion.LAYER_LOCATION) { BlimpBodyModel.Companion.createBodyLayer() }
+        event.registerLayerDefinition(BlimpBodyModel.LAYER_LOCATION) { BlimpBodyModel.Companion.createBodyLayer() }
         event.registerLayerDefinition(BlimpTintModel.Companion.LAYER_LOCATION) { BlimpTintModel.Companion.createBodyLayer() }
     }
 

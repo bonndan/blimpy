@@ -17,6 +17,7 @@ class ModItemModelProvider(output: PackOutput, existingFileHelper: ExistingFileH
         val itemGenerated: ModelFile = getExistingFile(mcLoc("item/generated"))
 
         builder(itemGenerated, "blimp")
+        builder(itemGenerated, "locomotive")
     }
 
 
