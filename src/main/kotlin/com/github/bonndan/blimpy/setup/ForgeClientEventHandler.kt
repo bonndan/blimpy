@@ -2,6 +2,7 @@ package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
+import com.github.bonndan.blimpy.locomotive.entity.LocomotiveEntity
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.resources.ResourceLocation
@@ -14,11 +15,11 @@ import org.lwjgl.glfw.GLFW
 /**
  * Forge-wide event bus
  */
-@EventBusSubscriber(modid = BlimpyMod.Companion.MOD_ID, value = [Dist.CLIENT])
+@EventBusSubscriber(modid = BlimpyMod.MOD_ID, value = [Dist.CLIENT])
 object ForgeClientEventHandler {
 
     val BEAM_LOCATION: ResourceLocation =
-        ResourceLocation.fromNamespaceAndPath(BlimpyMod.Companion.MOD_ID, "textures/entity/beacon_beam.png")
+        ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/beacon_beam.png")
 
     @SubscribeEvent
     fun onKeyInputEvent(event: InputEvent.Key) {
@@ -37,6 +38,13 @@ object ForgeClientEventHandler {
             when (event.key) {
                 GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.sink()
                 GLFW.GLFW_KEY_SPACE -> vehicle.rise()
+            }
+        }
+
+        if (vehicle is LocomotiveEntity) {
+            when (event.key) {
+                GLFW.GLFW_KEY_SPACE -> vehicle.throttleUp()
+                GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.throttleDown()
             }
         }
     }

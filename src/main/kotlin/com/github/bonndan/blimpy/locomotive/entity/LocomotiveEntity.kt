@@ -1,7 +1,13 @@
 package com.github.bonndan.blimpy.locomotive.entity
 
+import com.github.bonndan.blimpy.network.SetEnginePacket
+import com.github.bonndan.blimpy.network.SetThrottlePacket
+import com.github.bonndan.blimpy.network.VehiclePacketHandler
 import com.github.bonndan.blimpy.setup.ModItems
 import net.minecraft.core.BlockPos
+import net.minecraft.network.syncher.EntityDataAccessor
+import net.minecraft.network.syncher.EntityDataSerializers
+import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.ItemTags
 import net.minecraft.util.Mth
@@ -18,11 +24,15 @@ import net.minecraft.world.level.block.state.properties.RailShape
 import net.minecraft.world.phys.Vec3
 import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.deepCopy
 
-class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level)  : MinecartFurnace(entityType, level){
+class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level) : MinecartFurnace(entityType, level) {
 
     private var rotationOffset = 0f
     private var playerRotationOffset = 0f
 
+    override fun defineSynchedData(builder: SynchedEntityData.Builder) {
+        super.defineSynchedData(builder)
+        builder.define(DATA_ID_THROTTLE, 1.0f)
+    }
 
     override fun interact(player: Player, hand: InteractionHand): InteractionResult {
 
@@ -90,6 +100,7 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
             this.rotationOffset += d1.toFloat()
             this.rotationOffset %= 360.0f
         }
+        setThrottle(getThrottle())
     }
 
     override fun positionRider(passenger: Entity, callback: MoveFunction) {
@@ -114,7 +125,7 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
         // for the new behavior, only apply speed boost if the player is giving movement input
         if (useExperimentalMovement(this.level())) {
             if (firstPassengerIsBurningFuel()) {
-                speedFactor = 2.0
+                speedFactor = getThrottle().toDouble()
             }
         }
         return super.makeStepAlongTrack(pos, railShape, speed * speedFactor)
@@ -127,7 +138,8 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
         // for the old behavior, always apply speed boost when a player is  movement input
         if (!useExperimentalMovement(this.level())) {
             if (firstPassengerIsBurningFuel()) {
-                speedFactor = 2.0
+                speedFactor = getThrottle().toDouble()
+                println("speedFactor = [${speedFactor}]")
             }
         }
 
@@ -141,7 +153,7 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
         }
 
         val passenger = this.firstPassenger
-        if (passenger is ServerPlayer ) {
+        if (passenger is ServerPlayer) {
             if (passenger.lastClientMoveIntent.lengthSqr() > 0.0) {
                 return true
             }
@@ -149,4 +161,39 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
 
         return false
     }
+
+    override fun dismountTo(x: Double, y: Double, z: Double) {
+        setThrottle(1.0f)
+        super.dismountTo(x, y, z)
+    }
+
+    fun throttleUp() {
+        val throttle = getThrottle()
+        if (throttle < 2.5) {
+            VehiclePacketHandler.send(SetThrottlePacket(id, throttle + 0.2f))
+            println("throttle increased to [${getThrottle()}]")
+        }
+    }
+
+    fun throttleDown() {
+        val throttle = getThrottle()
+        if (throttle > 0.2) {
+            VehiclePacketHandler.send(SetThrottlePacket(id, throttle - 0.2f))
+            println("throttle reduced to [${getThrottle()}]")
+        }
+    }
+
+    fun getThrottle(): Float {
+        return this.entityData.get(DATA_ID_THROTTLE) 
+    }
+
+    fun setThrottle(throttle: Float) {
+        this.entityData.set(DATA_ID_THROTTLE, throttle)
+    }
+
+    companion object {
+        val DATA_ID_THROTTLE: EntityDataAccessor<Float> =
+            SynchedEntityData.defineId(LocomotiveEntity::class.java, EntityDataSerializers.FLOAT)
+    }
+
 }
