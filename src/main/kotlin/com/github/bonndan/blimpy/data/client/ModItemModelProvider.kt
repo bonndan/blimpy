@@ -17,17 +17,10 @@ class ModItemModelProvider(output: PackOutput) : ModelProvider(output, BlimpyMod
     override fun registerModels(blockModels: BlockModelGenerators, itemModels: ItemModelGenerators) {
 
         itemModels.generateFlatItem(ModItems.BLIMP.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(ModItems.LOCOMOTIVE.get(), ModelTemplates.FLAT_ITEM);
 
-        /*
-        itemModels.itemModelOutput.accept(
-            ModItems.BLIMP.get(),
-            BlockModelWrapper.Unbaked(
-                ModelLocationUtils.getModelLocation(ModItems.BLIMP.get()),
-                mutableListOf<ItemTintSource?>()
-            )
-        )
-
-         */
+        builder(itemGenerated, "blimp")
+        builder(itemGenerated, "locomotive")
     }
 
 }

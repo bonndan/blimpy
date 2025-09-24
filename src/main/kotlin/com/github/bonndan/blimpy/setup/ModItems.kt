@@ -1,6 +1,7 @@
 package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.blimp.item.BlimpItem
+import com.github.bonndan.blimpy.locomotive.item.LocomotiveItem
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.CreativeModeTabs
@@ -16,11 +17,12 @@ object ModItems {
     private val PRIVATE_TAB_REGISTRY = MultiMap<ResourceKey<CreativeModeTab>, Supplier<out Item>>()
 
     val BLIMP = registerItem("blimp", ::BlimpItem, defaultItemProperties(1))
+    val LOCOMOTIVE = registerItem("locomotive", ::LocomotiveItem, defaultItemProperties(1))
 
     init {
         registerTabs(BLIMP, listOf(CreativeModeTabs.TOOLS_AND_UTILITIES))
+        registerTabs(LOCOMOTIVE, listOf(CreativeModeTabs.TOOLS_AND_UTILITIES))
     }
-
 
     fun buildCreativeTab(event: BuildCreativeModeTabContentsEvent) {
         PRIVATE_TAB_REGISTRY.getOrDefault(event.tabKey, ArrayList())

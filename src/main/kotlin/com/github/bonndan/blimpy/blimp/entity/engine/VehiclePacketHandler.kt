@@ -9,17 +9,31 @@ import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler
 import net.neoforged.neoforge.network.handling.IPayloadContext
 import java.util.*
 
+/**
+ * Handles event that are sent from client to server.
+ */
 object VehiclePacketHandler {
 
     @SubscribeEvent
     fun register(event: RegisterPayloadHandlersEvent) {
+
         val registrar = event.registrar("1")
+
         registrar.playBidirectional(
             SetEnginePacket.TYPE,
             SetEnginePacket.STREAM_CODEC,
             DirectionalPayloadHandler(
                 { obj, operation -> handleSetEngine(obj, operation) },
                 { obj, operation -> handleSetEngine(obj, operation) }
+            )
+        )
+
+        registrar.playBidirectional(
+            SetThrottlePacket.TYPE,
+            SetThrottlePacket.STREAM_CODEC,
+            DirectionalPayloadHandler(
+                { obj, operation -> handleSetThrottle(obj, operation) },
+                { obj, operation -> handleSetThrottle(obj, operation) }
             )
         )
     }
@@ -36,6 +50,19 @@ object VehiclePacketHandler {
                     val loco = serverPlayer.level().getEntity(operation.locoId)
                     if (loco != null && loco.distanceTo(serverPlayer) < 6 && loco is BlimpEntity) {
                         loco.setEngineOn(operation.state)
+                    }
+                }
+        }
+    }
+
+    private fun handleSetThrottle(operation: SetThrottlePacket, ctx: IPayloadContext) {
+        ctx.enqueueWork {
+            Optional.of(ctx)
+                .map { it.player() }
+                .ifPresent { serverPlayer ->
+                    val entity = serverPlayer.level().getEntity(operation.locoId)
+                    if (entity != null && entity.distanceTo(serverPlayer) < 6 && entity is com.github.bonndan.blimpy.locomotive.entity.LocomotiveEntity) {
+                        entity.setThrottle(operation.throttle)
                     }
                 }
         }

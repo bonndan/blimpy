@@ -17,7 +17,7 @@ data class SetEnginePacket(val locoId: Int, val state: Boolean) : CustomPacketPa
 
         private val LOCATION = ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "blimpy_engine_packet")
 
-        val TYPE: CustomPacketPayload.Type<SetEnginePacket> = CustomPacketPayload.Type<SetEnginePacket>(LOCATION)
+        val TYPE = CustomPacketPayload.Type<SetEnginePacket>(LOCATION)
         
         val STREAM_CODEC: StreamCodec<ByteBuf?, SetEnginePacket> =
             StreamCodec.composite<ByteBuf, SetEnginePacket, Int, Boolean>(
