@@ -40,6 +40,7 @@ import net.minecraft.world.level.storage.loot.LootTable
 import net.minecraft.world.phys.Vec3
 import net.neoforged.neoforge.entity.PartEntity
 import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.toVec3
+import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.toVector3d
 import java.util.function.Supplier
 import kotlin.math.abs
 import kotlin.math.min

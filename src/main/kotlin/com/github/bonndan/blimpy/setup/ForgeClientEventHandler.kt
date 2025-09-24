@@ -36,7 +36,17 @@ object ForgeClientEventHandler {
             return
         }
 
-        if (!isRidingTheBlimp(player)) {
+        if (player !is LocalPlayer || !player.isPassenger) {
+            return
+        }
+
+        val vehicle = player.vehicle
+
+        if (vehicle is BlimpEntity) {
+            when (event.key) {
+                GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.sink()
+                GLFW.GLFW_KEY_SPACE -> vehicle.rise()
+            }
             return
         }
 
@@ -45,13 +55,10 @@ object ForgeClientEventHandler {
                 GLFW.GLFW_KEY_SPACE -> vehicle.throttleUp()
                 GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.throttleDown()
             }
+            return
         }
 
-        val vehicle = player!!.vehicle as BlimpEntity
-        when (event.key) {
-            GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.sink()
-            GLFW.GLFW_KEY_SPACE -> vehicle.rise()
-        }
+
     }
 
     @SubscribeEvent(receiveCanceled = true)
@@ -61,8 +68,6 @@ object ForgeClientEventHandler {
         if (!isRidingTheBlimp(player)) {
             return
         }
-
-
 
         if (!BombBay.launchBomb(event, player)) {
             return

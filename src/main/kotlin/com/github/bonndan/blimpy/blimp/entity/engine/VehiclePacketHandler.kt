@@ -1,6 +1,7 @@
 package com.github.bonndan.blimpy.blimp.entity.engine
 
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
+import com.github.bonndan.blimpy.network.SetThrottlePacket
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.neoforge.network.PacketDistributor

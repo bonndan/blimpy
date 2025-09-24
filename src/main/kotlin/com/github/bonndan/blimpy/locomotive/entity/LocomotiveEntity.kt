@@ -1,8 +1,7 @@
 package com.github.bonndan.blimpy.locomotive.entity
 
-import com.github.bonndan.blimpy.network.SetEnginePacket
+import com.github.bonndan.blimpy.blimp.entity.engine.VehiclePacketHandler
 import com.github.bonndan.blimpy.network.SetThrottlePacket
-import com.github.bonndan.blimpy.network.VehiclePacketHandler
 import com.github.bonndan.blimpy.setup.ModItems
 import net.minecraft.core.BlockPos
 import net.minecraft.network.syncher.EntityDataAccessor

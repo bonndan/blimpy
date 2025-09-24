@@ -19,8 +19,6 @@ class ModItemModelProvider(output: PackOutput) : ModelProvider(output, BlimpyMod
         itemModels.generateFlatItem(ModItems.BLIMP.get(), ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(ModItems.LOCOMOTIVE.get(), ModelTemplates.FLAT_ITEM);
 
-        builder(itemGenerated, "blimp")
-        builder(itemGenerated, "locomotive")
     }
 
 }
