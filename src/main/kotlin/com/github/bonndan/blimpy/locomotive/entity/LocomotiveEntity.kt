@@ -1,9 +1,11 @@
 package com.github.bonndan.blimpy.locomotive.entity
 
-import com.github.bonndan.blimpy.blimp.entity.engine.VehiclePacketHandler
+import com.github.bonndan.blimpy.blimp.entity.engine.VehiclePacketHandler.sendToServer
 import com.github.bonndan.blimpy.network.SetThrottlePacket
 import com.github.bonndan.blimpy.setup.ModItems
+import net.minecraft.client.Minecraft
 import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
@@ -27,6 +29,10 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
 
     private var rotationOffset = 0f
     private var playerRotationOffset = 0f
+
+    val FULL_AHEAD = 1.0f
+    val ZERO_SPEED = 0f
+    val BRAKES = -0.5f
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
         super.defineSynchedData(builder)
@@ -99,7 +105,7 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
             this.rotationOffset += d1.toFloat()
             this.rotationOffset %= 360.0f
         }
-        setThrottle(getThrottle())
+        this.behavior
     }
 
     override fun positionRider(passenger: Entity, callback: MoveFunction) {
@@ -123,7 +129,7 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
 
         // for the new behavior, only apply speed boost if the player is giving movement input
         if (useExperimentalMovement(this.level())) {
-            if (firstPassengerIsBurningFuel()) {
+            if (hasActiveThrottle()) {
                 speedFactor = getThrottle().toDouble()
             }
         }
@@ -132,16 +138,14 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
 
     override fun applyNaturalSlowdown(speed: Vec3): Vec3 {
 
-        var speedFactor = 1.0
-
         // for the old behavior, always apply speed boost when a player is movement input
         if (!useExperimentalMovement(this.level())) {
-            if (firstPassengerIsBurningFuel()) {
+            if (hasActiveThrottle()) {
 
                 //this is the minecart default behavior without the push
                 val slowdownFactor = this.behavior.slowdownFactor
-                speedFactor = getThrottle().toDouble()
-                var newSpeed: Vec3 = speed.multiply(slowdownFactor + speedFactor, 0.0, slowdownFactor + speedFactor)
+                val speedEffect = getThrottle().toDouble()
+                var newSpeed: Vec3 = speed.multiply(slowdownFactor + speedEffect, 0.0, slowdownFactor + speedEffect)
                 if (this.isInWater) {
                     newSpeed = newSpeed.scale(0.95)
                 }
@@ -150,24 +154,11 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
             }
         }
 
-        return super.applyNaturalSlowdown(speed.scale(speedFactor))
+        return super.applyNaturalSlowdown(speed)
     }
 
-    private fun firstPassengerIsBurningFuel(): Boolean {
-
-        if (!hasFuel()) {
-            return false
-        }
-
-        val passenger = this.firstPassenger
-        if (passenger is ServerPlayer) {
-            if (passenger.lastClientMoveIntent.lengthSqr() > 0.0) {
-                return true
-            }
-        }
-
-        return false
-    }
+    private fun hasActiveThrottle() =
+        hasFuel() && this.firstPassenger is ServerPlayer && getThrottle() != ZERO_SPEED
 
     override fun dismountTo(x: Double, y: Double, z: Double) {
         setThrottle(0f)
@@ -176,18 +167,39 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
 
     fun throttleUp() {
         val throttle = getThrottle()
-        if (throttle < 1.5f) {
-            VehiclePacketHandler.send(SetThrottlePacket(id, throttle + 0.1f))
-            println("throttle increased to [${getThrottle()}]")
+        when {
+            throttle >= FULL_AHEAD -> return
+
+            throttle == ZERO_SPEED && hasFuel() -> {
+                sendFeedback("Thrust on")
+                return sendToServer(SetThrottlePacket(id, FULL_AHEAD))
+            }
+
+            else -> {
+                sendFeedback("Loosing brakes")
+                return sendToServer(SetThrottlePacket(id, ZERO_SPEED))
+            }
         }
     }
 
     fun throttleDown() {
         val throttle = getThrottle()
-        if (throttle > -0.5f) {
-            VehiclePacketHandler.send(SetThrottlePacket(id, throttle - 0.1f))
-            println("throttle reduced to [${getThrottle()}]")
+        when {
+            throttle <= BRAKES -> return
+            throttle <= ZERO_SPEED -> {
+                sendFeedback("Brakes on")
+                return sendToServer(SetThrottlePacket(id, BRAKES))
+            }
+
+            else -> {
+                sendFeedback("Thrust off")
+                return sendToServer(SetThrottlePacket(id, ZERO_SPEED))
+            }
         }
+    }
+
+    private fun sendFeedback(string: String) {
+        Minecraft.getInstance().player?.displayClientMessage(Component.literal(string), false)
     }
 
     fun getThrottle(): Float {

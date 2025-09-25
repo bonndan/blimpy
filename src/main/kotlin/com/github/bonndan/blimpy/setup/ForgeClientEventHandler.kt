@@ -6,6 +6,7 @@ import com.github.bonndan.blimpy.locomotive.entity.LocomotiveEntity
 import com.github.bonndan.blimpy.blimp.entity.bombbay.BombBay
 import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacket
 import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacketHandler
+import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.resources.ResourceLocation
@@ -50,7 +51,7 @@ object ForgeClientEventHandler {
             return
         }
 
-        if (vehicle is LocomotiveEntity) {
+        if (event.action == InputConstants.PRESS && vehicle is LocomotiveEntity) {
             when (event.key) {
                 GLFW.GLFW_KEY_SPACE -> vehicle.throttleUp()
                 GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.throttleDown()
