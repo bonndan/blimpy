@@ -30,7 +30,7 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
         super.defineSynchedData(builder)
-        builder.define(DATA_ID_THROTTLE, 1.0f)
+        builder.define(DATA_ID_THROTTLE, 0f)
     }
 
     override fun interact(player: Player, hand: InteractionHand): InteractionResult {
@@ -134,11 +134,19 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
 
         var speedFactor = 1.0
 
-        // for the old behavior, always apply speed boost when a player is  movement input
+        // for the old behavior, always apply speed boost when a player is movement input
         if (!useExperimentalMovement(this.level())) {
             if (firstPassengerIsBurningFuel()) {
+
+                //this is the minecart default behavior without the push
+                val slowdownFactor = this.behavior.slowdownFactor
                 speedFactor = getThrottle().toDouble()
-                println("speedFactor = [${speedFactor}]")
+                var newSpeed: Vec3 = speed.multiply(slowdownFactor + speedFactor, 0.0, slowdownFactor + speedFactor)
+                if (this.isInWater) {
+                    newSpeed = newSpeed.scale(0.95)
+                }
+                println("new speed [${newSpeed}]")
+                return newSpeed
             }
         }
 
@@ -162,28 +170,28 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
     }
 
     override fun dismountTo(x: Double, y: Double, z: Double) {
-        setThrottle(1.0f)
+        setThrottle(0f)
         super.dismountTo(x, y, z)
     }
 
     fun throttleUp() {
         val throttle = getThrottle()
-        if (throttle < 2.5) {
-            VehiclePacketHandler.send(SetThrottlePacket(id, throttle + 0.2f))
+        if (throttle < 1.5f) {
+            VehiclePacketHandler.send(SetThrottlePacket(id, throttle + 0.1f))
             println("throttle increased to [${getThrottle()}]")
         }
     }
 
     fun throttleDown() {
         val throttle = getThrottle()
-        if (throttle > 0.2) {
-            VehiclePacketHandler.send(SetThrottlePacket(id, throttle - 0.2f))
+        if (throttle > -0.5f) {
+            VehiclePacketHandler.send(SetThrottlePacket(id, throttle - 0.1f))
             println("throttle reduced to [${getThrottle()}]")
         }
     }
 
     fun getThrottle(): Float {
-        return this.entityData.get(DATA_ID_THROTTLE) 
+        return this.entityData.get(DATA_ID_THROTTLE)
     }
 
     fun setThrottle(throttle: Float) {
