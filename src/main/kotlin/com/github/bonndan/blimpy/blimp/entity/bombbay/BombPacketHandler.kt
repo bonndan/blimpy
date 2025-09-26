@@ -3,6 +3,7 @@ package com.github.bonndan.blimpy.blimp.entity.bombbay
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
 import net.minecraft.server.level.ServerPlayer
 import net.neoforged.bus.api.SubscribeEvent
+import net.neoforged.neoforge.client.network.ClientPacketDistributor
 import net.neoforged.neoforge.network.PacketDistributor
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent
 import net.neoforged.neoforge.network.handling.IPayloadContext
@@ -22,7 +23,7 @@ object BombPacketHandler {
     }
 
     fun send(payload: BombPacket) {
-        PacketDistributor.sendToServer(payload)
+        ClientPacketDistributor.sendToServer(payload)
     }
 
     private fun handle(operation: BombPacket, ctx: IPayloadContext) {

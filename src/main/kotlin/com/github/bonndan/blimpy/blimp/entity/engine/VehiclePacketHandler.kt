@@ -5,9 +5,8 @@ import com.github.bonndan.blimpy.locomotive.entity.LocomotiveEntity
 import com.github.bonndan.blimpy.network.SetThrottlePacket
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.neoforged.bus.api.SubscribeEvent
-import net.neoforged.neoforge.network.PacketDistributor
+import net.neoforged.neoforge.client.network.ClientPacketDistributor
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler
 import net.neoforged.neoforge.network.handling.IPayloadContext
 import java.util.*
 
@@ -18,30 +17,25 @@ object VehiclePacketHandler {
 
     @SubscribeEvent
     fun register(event: RegisterPayloadHandlersEvent) {
-
         val registrar = event.registrar("1")
 
         registrar.playBidirectional(
             SetEnginePacket.TYPE,
             SetEnginePacket.STREAM_CODEC,
-            DirectionalPayloadHandler(
-                { obj, operation -> handleSetEngine(obj, operation) },
-                { obj, operation -> handleSetEngine(obj, operation) }
-            )
+            { obj, ctx -> handleSetEngine(obj, ctx) },
+            { obj, ctx -> handleSetEngineClient(obj, ctx) }
         )
 
         registrar.playBidirectional(
             SetThrottlePacket.TYPE,
             SetThrottlePacket.STREAM_CODEC,
-            DirectionalPayloadHandler(
-                { obj, operation -> handleSetThrottle(obj, operation) },
-                { obj, operation -> handleSetThrottle(obj, operation) }
-            )
+            { obj, ctx -> handleSetThrottle(obj, ctx) },
+            { obj, ctx -> handleSetThrottleClient(obj, ctx) }
         )
     }
 
     fun sendToServer(payload: CustomPacketPayload) {
-        PacketDistributor.sendToServer(payload)
+        ClientPacketDistributor.sendToServer(payload)
     }
 
     private fun handleSetEngine(operation: SetEnginePacket, ctx: IPayloadContext) {
@@ -68,6 +62,26 @@ object VehiclePacketHandler {
                         entity.setThrottle(operation.throttle)
                     }
                 }
+        }
+    }
+
+    private fun handleSetEngineClient(operation: SetEnginePacket, ctx: IPayloadContext) {
+        ctx.enqueueWork {
+            val client = net.minecraft.client.Minecraft.getInstance()
+            val loco = client.level?.getEntity(operation.locoId)
+            if (loco is BlimpEntity) {
+                loco.setEngineOn(operation.state)
+            }
+        }
+    }
+
+    private fun handleSetThrottleClient(operation: SetThrottlePacket, ctx: IPayloadContext) {
+        ctx.enqueueWork {
+            val client = net.minecraft.client.Minecraft.getInstance()
+            val loco = client.level?.getEntity(operation.locoId)
+            if (loco is LocomotiveEntity) {
+                loco.setThrottle(operation.throttle)
+            }
         }
     }
 }

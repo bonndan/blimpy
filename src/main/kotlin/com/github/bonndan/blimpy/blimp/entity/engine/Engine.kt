@@ -2,11 +2,13 @@ package com.github.bonndan.blimpy.blimp.entity.engine
 
 
 import net.minecraft.core.RegistryAccess
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.Vec3
 import net.neoforged.neoforge.items.ItemStackHandler
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Engine that uses some kind of fuel.
@@ -77,18 +79,18 @@ abstract class Engine(private var saveStateCallback: SaveStateCallback) : ItemSt
         this.remainingBurnTime = burnTime
     }
 
-    fun readAdditionalSaveData(compound: CompoundTag, registryAccess: RegistryAccess) {
-        setBurnTime(if (compound.contains(BURN)) compound.getInt(BURN) else 0)
-        setTotalBurnTime(if (compound.contains(TOTAL_BURN_CAPACITY)) compound.getInt(TOTAL_BURN_CAPACITY) else 0)
-        setEngineOn(if (compound.contains(ENGINE_ON)) compound.getBoolean(ENGINE_ON) else false)
-        deserializeNBT(registryAccess, compound.getCompound(FUEL_ITEMS))
+    fun readAdditionalSaveData(valueInput: ValueInput, registryAccess: RegistryAccess) {
+        setBurnTime(valueInput.getInt(BURN).orElse(0))
+        setTotalBurnTime(valueInput.getInt(TOTAL_BURN_CAPACITY).orElse(0))
+        setEngineOn(valueInput.getBooleanOr(ENGINE_ON,false))
+        valueInput.childOrEmpty(FUEL_ITEMS)
     }
 
-    fun addAdditionalSaveData(compound: CompoundTag, registryAccess: RegistryAccess) {
-        compound.putInt(BURN, remainingBurnTime)
-        compound.putInt(TOTAL_BURN_CAPACITY, totalBurnTime)
-        compound.putBoolean(ENGINE_ON, engineOn)
-        compound.put(FUEL_ITEMS, serializeNBT(registryAccess))
+    fun addAdditionalSaveData(valueOutput: ValueOutput) {
+        valueOutput.putInt(BURN, remainingBurnTime)
+        valueOutput.putInt(TOTAL_BURN_CAPACITY, totalBurnTime)
+        valueOutput.putBoolean(ENGINE_ON, engineOn)
+        valueOutput.putChild(FUEL_ITEMS, this)
     }
 
     abstract override fun isItemValid(slot: Int, stack: ItemStack): Boolean

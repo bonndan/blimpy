@@ -17,7 +17,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent
 /**
  * Mod-specific event bus
  */
-@EventBusSubscriber(modid = BlimpyMod.Companion.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = [Dist.CLIENT])
+@EventBusSubscriber(modid = BlimpyMod.MOD_ID, value = [Dist.CLIENT])
 object ModClientEventHandler {
 
     // Ersatz für EntityModelLayers.MINECART

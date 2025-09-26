@@ -7,9 +7,8 @@ import com.github.bonndan.blimpy.blimp.entity.engine.FueledEngine
 import com.github.bonndan.blimpy.blimp.entity.engine.SaveStateCallback
 import com.github.bonndan.blimpy.setup.ModSounds
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.core.BlockPos
 import net.minecraft.core.NonNullList
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
 import net.minecraft.network.syncher.EntityDataAccessor
@@ -36,11 +35,11 @@ import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.level.storage.loot.LootTable
 import net.minecraft.world.phys.Vec3
 import net.neoforged.neoforge.entity.PartEntity
-import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.toVec3
-import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.toVector3d
 import java.util.function.Supplier
 import kotlin.math.abs
 import kotlin.math.min
@@ -185,7 +184,8 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         this.engine.setEngineOn(state)
     }
 
-    override fun onAboveBubbleCol(downwards: Boolean) {
+
+    override fun onAboveBubbleColumn(downwards: Boolean, blockPos: BlockPos) {
         //nothing happens
     }
 
@@ -293,27 +293,25 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     /**
      * Updates entity state from saved data (engine, color, contents...)
      */
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        engine.readAdditionalSaveData(compound, registryAccess())
+    override fun readAdditionalSaveData(valueInput: ValueInput) {
+        super.readAdditionalSaveData(valueInput)
+        engine.readAdditionalSaveData(valueInput, registryAccess())
 
-        if (compound.contains(COLOR, Tag.TAG_INT.toInt())) {
-            setColorId(compound.getInt(COLOR))
-        }
+        valueInput.getInt(COLOR).map { setColorId(it) }
 
-        this.readChestVehicleSaveData(compound, this.registryAccess())
+        this.readChestVehicleSaveData(valueInput)
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
-        engine.addAdditionalSaveData(compound, registryAccess())
+    override fun addAdditionalSaveData(valueOutput: ValueOutput) {
+        super.addAdditionalSaveData(valueOutput)
+        engine.addAdditionalSaveData(valueOutput)
 
         val color = getColorId()
         if (color != null) {
-            compound.putInt(COLOR, color)
+            valueOutput.putInt(COLOR, color)
         }
 
-        this.addChestVehicleSaveData(compound, this.registryAccess())
+        this.addChestVehicleSaveData(valueOutput)
     }
 
     override fun recreateFromPacket(packet: ClientboundAddEntityPacket) {
@@ -333,9 +331,10 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
 
         engine.tickFuel()
         if (engine.isLit()) {
+            val entityPos = this.onPos.above().above()
             engine.makeEmissions(
                 level(),
-                this.onPos.above().above().toVec3(),
+                Vec3(entityPos.x.toDouble(), entityPos.y.toDouble(), entityPos.z.toDouble()),
                 Vec3(this.x, this.y, this.z),
                 Vec3(xOld, yOld, zOld)
             )

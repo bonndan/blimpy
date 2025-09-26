@@ -3,8 +3,8 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.165'
-    id "org.jetbrains.kotlin.jvm" version("2.2.0")
+    id 'net.neoforged.gradle.userdev' version '7.0.192'
+    id "org.jetbrains.kotlin.jvm" version("2.2.20")
     id 'jvm-test-suite'
 }
 
@@ -153,7 +153,6 @@ tasks.withType(ProcessResources).configureEach {
             neo_version_range      : neo_version_range,
             kff_version            : kff_version,
             kff_version_range      : kff_version_range,
-            loader_version_range   : loader_version_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,
             mod_license            : mod_license,

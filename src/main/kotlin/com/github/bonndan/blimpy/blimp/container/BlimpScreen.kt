@@ -1,13 +1,11 @@
 package com.github.bonndan.blimpy.blimp.container
 
 import com.github.bonndan.blimpy.BlimpyMod.Companion.MOD_ID
-import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import net.minecraft.client.renderer.CoreShaders
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
@@ -48,15 +46,15 @@ class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
 
     override fun renderBg(graphics: GuiGraphics, pPartialTick: Float, x: Int, y: Int) {
 
-        RenderSystem.setShader(CoreShaders.POSITION_TEX)
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F)
+        //RenderSystem.setShader(CoreShaders.POSITION_TEX)
+        //RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F)
         off.active = menu.isOn
         on.active = !menu.isOn
 
         val i = this.guiLeft
         val j = this.guiTop
 
-        graphics.blit(RenderType::guiTextured, GUI, i, j, 0f, 0f, this.xSize, this.ySize, 256, 256)
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, i, j, 0f, 0f, this.xSize, this.ySize, 256, 256)
         if (menu.isLit) {
             val progress = menu.getBurnProgress()
             val x1 = i + 80
@@ -66,7 +64,7 @@ class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
             val uWidth = 14
             val vHeight = progress + 1
 
-            graphics.blit(RenderType::guiTextured, GUI, x1, y1, uOffset, vOffset, uWidth, vHeight, 256, 256)
+            graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, x1, y1, uOffset, vOffset, uWidth, vHeight, 256, 256)
         }
     }
 

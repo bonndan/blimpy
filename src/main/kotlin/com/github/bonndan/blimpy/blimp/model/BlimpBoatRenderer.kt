@@ -14,14 +14,11 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.item.DyeColor
-import net.neoforged.api.distmarker.Dist
-import net.neoforged.api.distmarker.OnlyIn
 import kotlin.math.max
 
 /**
  * This is a copy of the AbstractBoatRenderer
  */
-@OnlyIn(Dist.CLIENT)
 class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
     EntityRenderer<BlimpEntity, BlimpRenderState>(context) {
 

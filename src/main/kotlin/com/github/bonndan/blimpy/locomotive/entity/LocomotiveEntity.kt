@@ -23,7 +23,6 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.properties.RailShape
 import net.minecraft.world.phys.Vec3
-import thedarkcolour.kotlinforforge.neoforge.forge.vectorutil.v3d.deepCopy
 
 class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level) : MinecartFurnace(entityType, level) {
 
@@ -68,7 +67,7 @@ class LocomotiveEntity(entityType: EntityType<out MinecartFurnace>, level: Level
         hand: InteractionHand
     ): InteractionResult {
 
-        val push = this.push.deepCopy()
+        val push = Vec3(this.push.x, this.push.y, this.push.z)
         val ret = super.interact(player, hand)
 
         //undo the push change from super.interact

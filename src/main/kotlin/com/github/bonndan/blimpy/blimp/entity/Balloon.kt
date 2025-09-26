@@ -1,6 +1,5 @@
 package com.github.bonndan.blimpy.blimp.entity
 
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.InteractionHand
@@ -11,6 +10,8 @@ import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.entity.Pose
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.storage.ValueInput
+import net.minecraft.world.level.storage.ValueOutput
 import net.neoforged.neoforge.entity.PartEntity
 
 
@@ -53,11 +54,11 @@ class Balloon(parent: BlimpEntity) : PartEntity<BlimpEntity>(parent) {
         return parent.hurtServer(level, damageSource, amount)
     }
 
-    override fun readAdditionalSaveData(tag: CompoundTag) {
+    override fun readAdditionalSaveData(valueInput: ValueInput) {
         //empty
     }
 
-    override fun addAdditionalSaveData(tag: CompoundTag) {
+    override fun addAdditionalSaveData(valueOutput: ValueOutput) {
         //empty
     }
 
