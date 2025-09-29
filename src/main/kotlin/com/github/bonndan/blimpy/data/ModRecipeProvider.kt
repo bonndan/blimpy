@@ -7,7 +7,6 @@ import net.minecraft.data.recipes.RecipeCategory
 import net.minecraft.data.recipes.RecipeOutput
 import net.minecraft.data.recipes.RecipeProvider
 import net.minecraft.tags.ItemTags.BOATS
-import net.minecraft.world.entity.vehicle.MinecartFurnace
 import net.minecraft.world.item.Items
 import java.util.concurrent.CompletableFuture
 
@@ -24,12 +23,6 @@ class ModRecipeProvider(recipeOutput: RecipeOutput, pRegistries: HolderLookup.Pr
             .pattern("^^^")
             .pattern("f r")
             .pattern("---")
-            .unlockedBy("has_item", has(Items.FURNACE))
-            .save(output)
-
-        this.shapeless(RecipeCategory.TRANSPORTATION, ModItems.LOCOMOTIVE.get(), 1)
-            .requires ( Items.FURNACE_MINECART)
-            .requires ( Items.LEVER)
             .unlockedBy("has_item", has(Items.FURNACE))
             .save(output)
     }

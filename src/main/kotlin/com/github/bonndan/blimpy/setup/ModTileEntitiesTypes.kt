@@ -9,15 +9,6 @@ import java.util.function.Supplier
 object ModTileEntitiesTypes {
 
 
-//    val LOCOMOTIVE_DOCK: Supplier<BlockEntityType<LocomotiveDockTileEntity>> = TILE_ENTITIES.register(
-//        "locomotive_dock",
-//        supplier(
-//            ModBlocks.LOCOMOTIVE_DOCK_RAIL,
-//            BlockEntitySupplier { pos: BlockPos, state: BlockState -> LocomotiveDockTileEntity(pos, state) }
-//        )
-//    )
-
-
     fun register() {
     }
 

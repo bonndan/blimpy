@@ -38,7 +38,6 @@ object BombBay {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     fun launchBomb(
         event: PlayerInteractEvent.RightClickItem,
         player: Player,

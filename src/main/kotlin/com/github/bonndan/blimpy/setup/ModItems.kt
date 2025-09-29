@@ -1,7 +1,6 @@
 package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.blimp.item.BlimpItem
-import com.github.bonndan.blimpy.locomotive.item.LocomotiveItem
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.CreativeModeTabs
@@ -16,12 +15,10 @@ object ModItems {
 
     private val PRIVATE_TAB_REGISTRY = MultiMap<ResourceKey<CreativeModeTab>, Supplier<out Item>>()
 
-    val BLIMP = registerItem("blimp", ::BlimpItem, defaultItemProperties(1))
-    val LOCOMOTIVE = registerItem("locomotive", ::LocomotiveItem, defaultItemProperties(1))
+    val BLIMP = registerItem("blimp", ::BlimpItem, Item.Properties().stacksTo(1))
 
     init {
-        registerTabs(BLIMP, listOf(CreativeModeTabs.TOOLS_AND_UTILITIES))
-        registerTabs(LOCOMOTIVE, listOf(CreativeModeTabs.TOOLS_AND_UTILITIES))
+        PRIVATE_TAB_REGISTRY.putInsert(CreativeModeTabs.TOOLS_AND_UTILITIES, BLIMP)
     }
 
     fun buildCreativeTab(event: BuildCreativeModeTabContentsEvent) {
@@ -38,16 +35,6 @@ object ModItems {
         return Registration.ITEMS.registerItem(name, itemSupplier, props)
     }
 
-    private fun registerTabs(itemSupplier: Supplier<Item>, tabs: List<ResourceKey<CreativeModeTab>>) {
-        for (tab in tabs) {
-            PRIVATE_TAB_REGISTRY.putInsert(tab, itemSupplier)
-        }
-    }
-
     fun register() {}
 
-
-    private fun defaultItemProperties(pMaxStackSize: Int = 64): Item.Properties {
-        return Item.Properties().stacksTo(pMaxStackSize)
-    }
 }

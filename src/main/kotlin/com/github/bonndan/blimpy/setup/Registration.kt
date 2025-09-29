@@ -23,7 +23,6 @@ object Registration {
     val TILE_ENTITIES: DeferredRegister<BlockEntityType<*>> = createRegister(BuiltInRegistries.BLOCK_ENTITY_TYPE)
 
 
-
     private fun <T> createRegister(registry: Registry<T>): DeferredRegister<T> {
         return DeferredRegister.create(registry, BlimpyMod.MOD_ID)
     }

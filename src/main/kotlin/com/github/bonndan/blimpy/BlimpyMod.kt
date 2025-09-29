@@ -25,7 +25,6 @@ class BlimpyMod(modBus: IEventBus, container: ModContainer) {
     }
 
     companion object {
-        // The value here should match an entry in the META-INF/mods.toml file
         const val MOD_ID: String = "blimpy"
     }
 }
