@@ -2,13 +2,10 @@ package com.github.bonndan.blimpy.data.client
 
 import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.setup.ModItems
-import net.minecraft.client.color.item.ItemTintSource
 import net.minecraft.client.data.models.BlockModelGenerators
 import net.minecraft.client.data.models.ItemModelGenerators
 import net.minecraft.client.data.models.ModelProvider
-import net.minecraft.client.data.models.model.ModelLocationUtils
 import net.minecraft.client.data.models.model.ModelTemplates
-import net.minecraft.client.renderer.item.BlockModelWrapper
 import net.minecraft.data.PackOutput
 
 

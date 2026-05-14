@@ -2,7 +2,7 @@ package com.github.bonndan.blimpy.setup
 
 import com.github.bonndan.blimpy.BlimpyMod
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier.fromNamespaceAndPath
 import net.minecraft.sounds.SoundEvent
 import net.neoforged.bus.api.IEventBus
 import net.neoforged.neoforge.registries.DeferredRegister
@@ -16,7 +16,7 @@ object ModSounds {
     val HISS: Supplier<SoundEvent> = SOUND_EVENTS.register(
         "hiss",
         Supplier {
-            SoundEvent.createFixedRangeEvent(ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "hiss"), 64F)
+            SoundEvent.createFixedRangeEvent(fromNamespaceAndPath(BlimpyMod.MOD_ID, "hiss"), 64F)
         })
 
     fun register(eventBus: IEventBus) {

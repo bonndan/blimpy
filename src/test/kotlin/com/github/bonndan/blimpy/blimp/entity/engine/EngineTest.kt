@@ -33,7 +33,14 @@ class EngineTest {
         SharedConstants.setVersion(BUILT_IN)
 
         //fix LoadingModList in Bootstrap
-        LoadingModList.of(listOf<ModFile>(),listOf<ModFile>(),listOf<ModInfo>(),listOf<ModLoadingIssue>(),mapOf<ModInfo, List<ModInfo>>())
+        LoadingModList.of(
+            listOf<ModFile>(),
+            listOf<ModFile>(),
+            listOf<ModFile>(),
+            mutableListOf<ModInfo>(),
+            mutableListOf<ModLoadingIssue>(),
+            mapOf<ModInfo, List<ModInfo>>()
+        )
 
         Bootstrap.bootStrap()
         engine = FueledEngine(saveStateCallback = saveStateCallback, fuelValues = mock<FuelValues>())

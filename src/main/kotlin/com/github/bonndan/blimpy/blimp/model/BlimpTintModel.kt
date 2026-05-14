@@ -6,7 +6,7 @@ import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.model.geom.PartPose
 import net.minecraft.client.model.geom.builders.*
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier.fromNamespaceAndPath
 
 /**
  * The visual model for the tinted balloon part.
@@ -15,7 +15,7 @@ class BlimpTintModel(root: ModelPart) : EntityModel<BlimpRenderState>(root.getCh
 
     companion object {
 
-        val LAYER_LOCATION: ModelLayerLocation = ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "blimp_tint"), "main")
+        val LAYER_LOCATION: ModelLayerLocation = ModelLayerLocation(fromNamespaceAndPath(BlimpyMod.MOD_ID, "blimp_tint"), "main")
 
         fun createBodyLayer(): LayerDefinition {
             val meshdefinition: MeshDefinition = MeshDefinition()

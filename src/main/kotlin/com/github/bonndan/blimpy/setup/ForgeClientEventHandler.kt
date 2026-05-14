@@ -7,7 +7,7 @@ import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacket
 import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacketHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier.fromNamespaceAndPath
 import net.minecraft.world.entity.player.Player
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
@@ -23,8 +23,7 @@ import org.lwjgl.glfw.GLFW
 @EventBusSubscriber(modid = BlimpyMod.MOD_ID, value = [Dist.CLIENT])
 object ForgeClientEventHandler {
 
-    val BEAM_LOCATION: ResourceLocation =
-        ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/beacon_beam.png")
+    val BEAM_LOCATION = fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/beacon_beam.png")
 
     @SubscribeEvent
     fun onKeyInputEvent(event: InputEvent.Key) {

@@ -4,8 +4,8 @@ import com.github.bonndan.blimpy.BlimpyMod
 import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
 import com.github.bonndan.blimpy.setup.Registration.ENTITIES
 import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier.fromNamespaceAndPath
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobCategory
 import net.minecraft.world.level.Level
@@ -31,8 +31,8 @@ object ModEntityTypes {
                 .build(asResourceKey("blimp"))
         })
 
-    private fun asResourceKey(path: String): ResourceKey<EntityType<*>?> = ResourceKey.create(
+    private fun asResourceKey(path: String): ResourceKey<EntityType<*>> = ResourceKey.create(
         Registries.ENTITY_TYPE,
-        ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, path)
+        fromNamespaceAndPath(BlimpyMod.MOD_ID, path)
     )
 }

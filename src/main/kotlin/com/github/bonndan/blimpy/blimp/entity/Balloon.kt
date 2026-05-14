@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
+import net.minecraft.world.phys.Vec3
 import net.neoforged.neoforge.entity.PartEntity
 
 
@@ -70,7 +71,7 @@ class Balloon(parent: BlimpEntity) : PartEntity<BlimpEntity>(parent) {
         return true
     }
 
-    override fun getPickResult(): ItemStack? {
+    override fun getPickResult(): ItemStack {
         return parent.pickResult
     }
 
@@ -78,16 +79,12 @@ class Balloon(parent: BlimpEntity) : PartEntity<BlimpEntity>(parent) {
         return this == entity || parent == entity
     }
 
-    override fun setPos(x: Double, y: Double, z: Double) {
-        super.setPos(x, y, z)
-    }
-
     override fun isPickable(): Boolean {
         return !this.isRemoved
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
 
-        return parent.interact(player, hand)
+        return parent.interact(player, hand, location) //TODO check if needed
     }
 }

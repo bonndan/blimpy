@@ -17,7 +17,7 @@ object BombBay {
     fun launchBomb(player: ServerPlayer) {
 
         val itemStack = player.getItemInHand(InteractionHand.MAIN_HAND)
-        if (!itemStack.`is`(Items.TNT) || itemStack == null || itemStack.isEmpty) {
+        if (!itemStack.`is`(Items.TNT) || itemStack.isEmpty) {
             return
         }
 
@@ -33,7 +33,7 @@ object BombBay {
         if (!player.abilities.instabuild) {
             itemStack.shrink(1)
             if (itemStack.isEmpty) {
-                player.getInventory().removeItem(itemStack)
+                player.inventory.removeItem(itemStack)
             }
         }
     }
@@ -43,7 +43,7 @@ object BombBay {
         player: Player,
     ): Boolean {
         val tnt = event.itemStack
-        if (!tnt.`is`(Items.TNT) || tnt == null || tnt.isEmpty) {
+        if (!tnt.`is`(Items.TNT) || tnt.isEmpty) {
             return false
         }
 

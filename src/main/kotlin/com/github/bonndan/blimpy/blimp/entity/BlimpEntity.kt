@@ -26,10 +26,11 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MoverType
+import net.minecraft.world.entity.SlotAccess
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.vehicle.AbstractBoat
 import net.minecraft.world.entity.vehicle.ContainerEntity
+import net.minecraft.world.entity.vehicle.boat.AbstractBoat
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
@@ -149,7 +150,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
      * The hitbox of the blimp is more or less the size of a boat, so a sitting player can suffocate in ceilings,
      * because the hitbox does not cover the balloon.
      *
-     *  @see net.minecraft.world.entity.boss.EnderDragonPart
+     *  @see net.minecraft.world.entity.boss.enderdragon.EnderDragon
      */
     override fun isMultipartEntity(): Boolean {
         return true
@@ -200,7 +201,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         getEntityData()[COLOR_ID] = color
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
 
         // if dyecolor is used on blimp
         val color = DyeColor.getColor(player.getItemInHand(hand))
@@ -219,7 +220,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         }
 
         // right click works for riding player, otherwise would dismount
-        val ret = super.interact(player, hand)
+        val ret = super.interact(player, hand, location)
         if (ret.consumesAction()) {
             return ret
         }
@@ -373,7 +374,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
         }
     }
 
-    fun isValid(player: Player): Boolean = !this.isRemoved && player.canInteractWithEntity(this.boundingBox, 4.0)
+    fun isValid(player: Player): Boolean = !this.isRemoved && player.isWithinEntityInteractionRange(this.boundingBox, 4.0)
 
     /*
      * container stuff:
@@ -396,7 +397,7 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     override fun getDisplayName(): Component {
-        return super<AbstractBoat>.displayName!!
+        return super<AbstractBoat>.displayName
     }
 
     override fun getContainerLootTable(): ResourceKey<LootTable>? {
@@ -418,6 +419,11 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     /**
      * Return only the "chest" content
      */
+
+    override fun getSlot(slot: Int): SlotAccess {
+        return SlotAccess.of({ engine.getStackInSlot(slot) }, { engine.setStackInSlot(slot, it) })
+    }
+
     override fun getItemStacks(): NonNullList<ItemStack> {
         return itemStacks
     }

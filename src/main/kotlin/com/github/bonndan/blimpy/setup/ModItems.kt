@@ -15,7 +15,7 @@ object ModItems {
 
     private val PRIVATE_TAB_REGISTRY = MultiMap<ResourceKey<CreativeModeTab>, Supplier<out Item>>()
 
-    val BLIMP = registerItem("blimp", ::BlimpItem, Item.Properties().stacksTo(1))
+    val BLIMP = registerItem("blimp", ::BlimpItem, { Item.Properties().stacksTo(1) })
 
     init {
         PRIVATE_TAB_REGISTRY.putInsert(CreativeModeTabs.TOOLS_AND_UTILITIES, BLIMP)
@@ -29,7 +29,7 @@ object ModItems {
     private fun registerItem(
         name: String,
         itemSupplier: Function<Item.Properties, Item>,
-        props: Item.Properties,
+        props: Supplier<Item.Properties>,
     ): DeferredItem<Item> {
 
         return Registration.ITEMS.registerItem(name, itemSupplier, props)

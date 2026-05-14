@@ -8,18 +8,17 @@ import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import net.neoforged.neoforge.items.IItemHandler
-import net.neoforged.neoforge.items.SlotItemHandler
-import net.neoforged.neoforge.items.wrapper.InvWrapper
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot
 
 class BlimpMenu(
     windowId: Int,
     world: Level,
     private val data: BlimpDataAccessor,
     playerInventory: Inventory,
-    private val player: Player?,
+    private val player: Player,
 ) : AbstractContainerMenu(ModMenuTypes.BLIMP_MENU.get(), windowId) {
 
     private var entity: BlimpEntity? = data.getEntityUUID()?.let { world.getEntity(it) as BlimpEntity? }
@@ -27,8 +26,14 @@ class BlimpMenu(
     init {
         addStandardInventorySlots(playerInventory, 8, 84)
         entity?.let {
-            addSlot(SlotItemHandler(it.engine, 0, 80, 24))
-            addSlotRange(InvWrapper(entity as Container), index = 1, x = 8, y = 48, BlimpEntity.CONTAINER_SIZE, dx = 18)
+            // Engine fuel slot — backed by the ResourceHandler directly
+            addSlot(ResourceHandlerSlot(it.engine, it.engine::set, 0, 80, 24))
+            // Chest slots — backed by the entity as a vanilla Container (slots offset by 1)
+            var x = 8
+            for (i in 1..BlimpEntity.CONTAINER_SIZE) {
+                addSlot(Slot(it as Container, i, x, 48))
+                x += 18
+            }
         }
         this.addDataSlots(data.getRawData())
     }
@@ -40,7 +45,6 @@ class BlimpMenu(
         get() = data.isOn
 
     fun setEngineState(state: Boolean) {
-
         VehiclePacketHandler.sendToServer(SetEnginePacket(entity!!.id, state))
     }
 
@@ -50,19 +54,6 @@ class BlimpMenu(
 
     override fun stillValid(player: Player): Boolean {
         return entity?.isValid(player) == true
-    }
-
-
-    private fun addSlotRange(handler: IItemHandler, index: Int, x: Int, y: Int, amount: Int, dx: Int): Int {
-        var index = index
-        var x = x
-        for (i in 0 until amount) {
-            addSlot(SlotItemHandler(handler, index, x, y))
-            x += dx
-            index++
-        }
-
-        return index
     }
 
     override fun quickMoveStack(playerIn: Player, index: Int): ItemStack {
@@ -105,7 +96,6 @@ class BlimpMenu(
 
             else -> return ItemStack.EMPTY
         }
-        // If stack size == 0 (the entire stack was moved) set slot contents to null
         if (sourceStack.count == 0) {
             sourceSlot.set(ItemStack.EMPTY)
         } else {
@@ -116,13 +106,6 @@ class BlimpMenu(
     }
 
     companion object {
-        // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
-        // must assign a slot number to each of the slots used by the GUI.
-        // For this container, we can see both the tile inventory's slots as well as the player inventory slots and the hotbar.
-        // Each time we add a Slot to the container, it automatically increases the slotIndex, which means
-        //  0 - 8 = hotbar slots (which will map to the InventoryPlayer slot numbers 0 - 8)
-        //  9 - 35 = player inventory slots (which map to the InventoryPlayer slot numbers 9 - 35)
-        //  36 - 44 = TileInventory slots, which map to our TileEntity slot numbers 0 - 8)
         private const val HOTBAR_SLOT_COUNT = 9
         private const val PLAYER_INVENTORY_ROW_COUNT = 3
         private const val PLAYER_INVENTORY_COLUMN_COUNT = 9

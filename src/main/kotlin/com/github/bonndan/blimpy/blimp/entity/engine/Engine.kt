@@ -7,24 +7,51 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.Vec3
-import net.neoforged.neoforge.items.ItemStackHandler
-import kotlin.jvm.optionals.getOrNull
+import net.neoforged.neoforge.transfer.item.ItemResource
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler
 
 /**
  * Engine that uses some kind of fuel.
  */
-abstract class Engine(private var saveStateCallback: SaveStateCallback) : ItemStackHandler(1) {
+abstract class Engine(private var saveStateCallback: SaveStateCallback) : ItemStacksResourceHandler(1) {
 
     private var engineOn: Boolean = false
     private var remainingBurnTime: Int = 0
     private var totalBurnTime: Int = 0
 
-    override fun setStackInSlot(slot: Int, stack: ItemStack) {
-        super.setStackInSlot(slot, stack)
+    // --- Compatibility helpers replacing deprecated ItemStackHandler methods ---
+
+    fun getStackInSlot(slot: Int): ItemStack = stacks[slot]
+
+    fun setStackInSlot(slot: Int, stack: ItemStack) {
+        val old = stacks[slot]
+        stacks[slot] = stack
+        onContentsChanged(slot, old)
         val burnTime = calculateBurnTimeOfNextItem(stack)
         load(burnTime)
         saveState(engineOn, remainingBurnTime)
     }
+
+    fun extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack {
+        val current = stacks[slot]
+        if (current.isEmpty) return ItemStack.EMPTY
+        val extracted = minOf(current.count, amount)
+        val result = current.copyWithCount(extracted)
+        if (!simulate) {
+            val old = stacks[slot]
+            stacks[slot] = if (current.count <= extracted) ItemStack.EMPTY else current.copyWithCount(current.count - extracted)
+            onContentsChanged(slot, old)
+        }
+        return result
+    }
+
+    // --- End compatibility helpers ---
+
+    override fun isValid(index: Int, resource: ItemResource): Boolean {
+        return isItemValid(index, resource.toStack(1))
+    }
+
+    abstract fun isItemValid(slot: Int, stack: ItemStack): Boolean
 
     fun getBurnProgressPct(): Int {
         return (remainingBurnTime.toFloat() / totalBurnTime.toFloat() * 100).toInt()
@@ -80,9 +107,9 @@ abstract class Engine(private var saveStateCallback: SaveStateCallback) : ItemSt
     }
 
     fun readAdditionalSaveData(valueInput: ValueInput, registryAccess: RegistryAccess) {
-        setBurnTime(valueInput.getInt(BURN).orElse(0))
-        setTotalBurnTime(valueInput.getInt(TOTAL_BURN_CAPACITY).orElse(0))
-        setEngineOn(valueInput.getBooleanOr(ENGINE_ON,false))
+        setBurnTime(valueInput.getInt(BURN).orElse(0) ?: 0)
+        setTotalBurnTime(valueInput.getInt(TOTAL_BURN_CAPACITY).orElse(0) ?: 0)
+        setEngineOn(valueInput.getBooleanOr(ENGINE_ON, false))
         valueInput.childOrEmpty(FUEL_ITEMS)
     }
 
@@ -92,8 +119,6 @@ abstract class Engine(private var saveStateCallback: SaveStateCallback) : ItemSt
         valueOutput.putBoolean(ENGINE_ON, engineOn)
         valueOutput.putChild(FUEL_ITEMS, this)
     }
-
-    abstract override fun isItemValid(slot: Int, stack: ItemStack): Boolean
 
     abstract fun calculateBurnTimeOfNextItem(stack: ItemStack): Int
 
@@ -106,7 +131,7 @@ abstract class Engine(private var saveStateCallback: SaveStateCallback) : ItemSt
     }
 
     /**
-     * CLient side updates only.
+     * Client side updates only.
      */
     fun setRemainingBurnTime(remainingBurnTime: Int) {
         this.remainingBurnTime = remainingBurnTime

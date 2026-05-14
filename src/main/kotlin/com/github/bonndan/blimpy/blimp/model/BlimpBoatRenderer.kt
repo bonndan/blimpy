@@ -5,76 +5,80 @@ import com.github.bonndan.blimpy.blimp.entity.BlimpEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.client.model.EntityModel
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.rendertype.RenderTypes
+import net.minecraft.client.renderer.state.level.CameraRenderState
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
+import net.minecraft.resources.Identifier.fromNamespaceAndPath
 import net.minecraft.util.Mth
 import net.minecraft.world.item.DyeColor
 import kotlin.math.max
 
 /**
- * This is a copy of the AbstractBoatRenderer
+ * This is based on AbstractBoatRenderer, updated for the MC 26.1 rendering API.
  */
 class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
     EntityRenderer<BlimpEntity, BlimpRenderState>(context) {
 
-    private val blockRenderer: BlockRenderDispatcher
     private val model: EntityModel<BlimpRenderState>
     private val colorModel: EntityModel<BlimpRenderState>
-    private val texture: ResourceLocation = ResourceLocation.fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/blimp_texture.png")
+    private val texture: Identifier = fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/blimp_texture.png")
 
     init {
         this.shadowRadius = 0.8f
         this.model = BlimpBodyModel(context.bakeLayer(BlimpBodyModel.LAYER_LOCATION))
         this.colorModel = BlimpTintModel(context.bakeLayer(BlimpTintModel.LAYER_LOCATION))
-        this.blockRenderer = context.blockRenderDispatcher
     }
 
-    override fun render(
-        renderState: BlimpRenderState,
+    override fun submit(
+        state: BlimpRenderState,
         poseStack: PoseStack,
-        bufferSource: MultiBufferSource,
-        packedLight: Int,
+        submitNodeCollector: SubmitNodeCollector,
+        camera: CameraRenderState,
     ) {
         poseStack.pushPose()
         poseStack.translate(0.0f, 1.5f, 0.0f)
-        poseStack.mulPose(Axis.YP.rotationDegrees(270.0f - renderState.yRot)) //TODO extra 90, fix in model
-        val f = renderState.hurtTime
+        poseStack.mulPose(Axis.YP.rotationDegrees(270.0f - state.yRot)) //TODO extra 90, fix in model
+        val f = state.hurtTime
         if (f > 0.0f) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(Mth.sin(f) * f * renderState.damageTime / 10.0f * renderState.hurtDir.toFloat()))
+            poseStack.mulPose(Axis.XP.rotationDegrees(Mth.sin(f.toDouble()) * f * state.damageTime / 10.0f * state.hurtDir.toFloat()))
         }
 
         poseStack.scale(-1.0f, -1.0f, 1.0f)
         poseStack.mulPose(Axis.YP.rotationDegrees(90.0f))
-        model.setupAnim(renderState)
+        model.setupAnim(state)
 
-        val vertexconsumer = bufferSource.getBuffer(model.renderType(this.texture))
-        model.renderToBuffer(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY)
+        submitNodeCollector.submitModel(model, state, poseStack, texture, state.lightCoords, OverlayTexture.NO_OVERLAY, state.outlineColor, null)
 
-        renderColorModel(poseStack, colorModel, bufferSource, this.texture, packedLight, renderState)
+        renderColorModel(poseStack, colorModel, submitNodeCollector, texture, state.lightCoords, state)
         poseStack.popPose()
-        super.render(renderState, poseStack, bufferSource, packedLight)
+        super.submit(state, poseStack, submitNodeCollector, camera)
     }
 
     private fun renderColorModel(
         poseStack: PoseStack,
         colorModel: EntityModel<BlimpRenderState>,
-        buffer: MultiBufferSource,
-        colorTexture: ResourceLocation,
-        packedLight: Int,
+        submitNodeCollector: SubmitNodeCollector,
+        colorTexture: Identifier,
+        lightCoords: Int,
         renderState: BlimpRenderState,
     ) {
         poseStack.pushPose()
-        colorModel.renderToBuffer(
+        val tintColor = DyeColor.byId(renderState.getColorId()).textureDiffuseColor
+        submitNodeCollector.submitModel(
+            colorModel,
+            renderState,
             poseStack,
-            buffer.getBuffer(RenderType.entityCutoutNoCull(colorTexture)),
-            packedLight,
+            RenderTypes.entityCutout(colorTexture),
+            lightCoords,
             OverlayTexture.NO_OVERLAY,
-            DyeColor.byId(renderState.getColorId()).textureDiffuseColor
+            tintColor,
+            null,
+            renderState.outlineColor,
+            null
         )
         poseStack.popPose()
     }
@@ -84,7 +88,6 @@ class BlimpBoatRenderer(context: EntityRendererProvider.Context) :
     }
 
     override fun extractRenderState(entity: BlimpEntity, reusedState: BlimpRenderState, partialTick: Float) {
-
         super.extractRenderState(entity, reusedState, partialTick)
 
         reusedState.yRot = entity.getYRot(partialTick)

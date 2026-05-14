@@ -1,13 +1,13 @@
 package com.github.bonndan.blimpy.blimp.container
 
 import com.github.bonndan.blimpy.BlimpyMod.Companion.MOD_ID
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Tooltip
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier.fromNamespaceAndPath
 import net.minecraft.world.entity.player.Inventory
 
 class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
@@ -16,22 +16,20 @@ class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
     private lateinit var on: Button
     private lateinit var off: Button
 
-    override fun render(graphics: GuiGraphics, mouseX: Int, mouseY: Int, partialTicks: Float) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTicks)
-        super.render(graphics, mouseX, mouseY, partialTicks)
-        this.renderTooltip(graphics, mouseX, mouseY)
+    override fun extractRenderState(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTicks: Float) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks)
     }
 
     override fun init() {
         super.init()
         on = Button.Builder(Component.literal("->")) { menu.setEngineState(true) }
-            .pos(this.guiLeft + 130, this.guiTop + 23)
+            .pos(this.leftPos + 130, this.topPos + 23)
             .size(20, 20)
             .tooltip(tooltipOf("screen.blimpy.engine.on"))
             .build()
 
         off = Button.Builder(Component.literal("x")) { menu.setEngineState(false) }
-            .pos(this.guiLeft + 104, this.guiTop + 23)
+            .pos(this.leftPos + 104, this.topPos + 23)
             .size(20, 20)
             .tooltip(tooltipOf("screen.blimpy.engine.off"))
             .build()
@@ -44,17 +42,16 @@ class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
         return Tooltip.create(Component.translatable(translatableString))
     }
 
-    override fun renderBg(graphics: GuiGraphics, pPartialTick: Float, x: Int, y: Int) {
-
-        //RenderSystem.setShader(CoreShaders.POSITION_TEX)
-        //RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F)
+    override fun extractContents(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         off.active = menu.isOn
         on.active = !menu.isOn
 
-        val i = this.guiLeft
-        val j = this.guiTop
+        val i = this.leftPos
+        val j = this.topPos
 
-        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, i, j, 0f, 0f, this.xSize, this.ySize, 256, 256)
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI, i, j, 0f, 0f, this.imageWidth, this.imageHeight, 256, 256)
+        super.extractContents(graphics, mouseX, mouseY, partialTick)
+
         if (menu.isLit) {
             val progress = menu.getBurnProgress()
             val x1 = i + 80
@@ -69,7 +66,6 @@ class BlimpScreen(menu: BlimpMenu, inventory: Inventory, component: Component) :
     }
 
     companion object {
-        private val GUI: ResourceLocation =
-            ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/container/blimp_container.png")
+        private val GUI = fromNamespaceAndPath(MOD_ID, "textures/container/blimp_container.png")
     }
 }
