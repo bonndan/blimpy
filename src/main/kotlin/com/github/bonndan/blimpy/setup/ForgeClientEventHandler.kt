@@ -7,14 +7,12 @@ import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacket
 import com.github.bonndan.blimpy.blimp.entity.bombbay.BombPacketHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.resources.Identifier.fromNamespaceAndPath
 import net.minecraft.world.entity.player.Player
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
-import net.neoforged.neoforge.client.event.InputEvent
+import net.neoforged.neoforge.client.event.ClientTickEvent
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent
-import org.lwjgl.glfw.GLFW
 
 
 /**
@@ -23,14 +21,12 @@ import org.lwjgl.glfw.GLFW
 @EventBusSubscriber(modid = BlimpyMod.MOD_ID, value = [Dist.CLIENT])
 object ForgeClientEventHandler {
 
-    val BEAM_LOCATION = fromNamespaceAndPath(BlimpyMod.MOD_ID, "textures/entity/beacon_beam.png")
-
     @SubscribeEvent
-    fun onKeyInputEvent(event: InputEvent.Key) {
+    fun onClientTick(@Suppress("UNUSED_PARAMETER") event: ClientTickEvent.Post) {
+        val minecraft = Minecraft.getInstance()
+        val player = minecraft.player
 
-        val player = Minecraft.getInstance().player
-
-        if (event.key != GLFW.GLFW_KEY_LEFT_CONTROL && event.key != GLFW.GLFW_KEY_SPACE) {
+        if (minecraft.screen != null) {
             return
         }
 
@@ -40,12 +36,16 @@ object ForgeClientEventHandler {
 
         val vehicle = player.vehicle
 
-        if (vehicle is BlimpEntity) {
-            when (event.key) {
-                GLFW.GLFW_KEY_LEFT_CONTROL -> vehicle.sink()
-                GLFW.GLFW_KEY_SPACE -> vehicle.rise()
-            }
+        if (vehicle !is BlimpEntity) {
             return
+        }
+
+        if (minecraft.options.keySprint.isDown) {
+            vehicle.sink()
+        }
+
+        if (minecraft.options.keyJump.isDown) {
+            vehicle.rise()
         }
     }
 
