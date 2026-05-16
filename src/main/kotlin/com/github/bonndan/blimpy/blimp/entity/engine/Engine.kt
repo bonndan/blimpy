@@ -106,11 +106,11 @@ abstract class Engine(private var saveStateCallback: SaveStateCallback) : ItemSt
         this.remainingBurnTime = burnTime
     }
 
-    fun readAdditionalSaveData(valueInput: ValueInput, registryAccess: RegistryAccess) {
+    fun readAdditionalSaveData(valueInput: ValueInput, @Suppress("UNUSED_PARAMETER") registryAccess: RegistryAccess) {
         setBurnTime(valueInput.getInt(BURN).orElse(0) ?: 0)
         setTotalBurnTime(valueInput.getInt(TOTAL_BURN_CAPACITY).orElse(0) ?: 0)
         setEngineOn(valueInput.getBooleanOr(ENGINE_ON, false))
-        valueInput.childOrEmpty(FUEL_ITEMS)
+        valueInput.readChild(FUEL_ITEMS, this)
     }
 
     fun addAdditionalSaveData(valueOutput: ValueOutput) {

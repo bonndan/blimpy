@@ -296,11 +296,10 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
      */
     override fun readAdditionalSaveData(valueInput: ValueInput) {
         super.readAdditionalSaveData(valueInput)
+        this.readChestVehicleSaveData(valueInput)
         engine.readAdditionalSaveData(valueInput, registryAccess())
 
         valueInput.getInt(COLOR).map { setColorId(it) }
-
-        this.readChestVehicleSaveData(valueInput)
     }
 
     override fun addAdditionalSaveData(valueOutput: ValueOutput) {
@@ -429,7 +428,6 @@ class BlimpEntity(entityType: EntityType<out AbstractBoat>, level: Level, dropIt
     }
 
     override fun clearItemStacks() {
-        engine.setStackInSlot(0, ItemStack.EMPTY)
         this.itemStacks = NonNullList.withSize(this.containerSize, ItemStack.EMPTY)
     }
 
